@@ -22,7 +22,7 @@ builder.Host.UseSerilog();
 builder.Services.AddDbContext<MessageDbContext>(options =>
     options.UseNpgsql(
         builder.Configuration.GetConnectionString("DefaultConnection"),
-        npgsql => npgsql.MigrationsHistoryTable("__EFMigrationsHistory_Message_v2")));
+        npgsql => npgsql.MigrationsHistoryTable("__EFMigrationsHistory_Message")));
 
 // ── DI ────────────────────────────────────────────────────────────
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();

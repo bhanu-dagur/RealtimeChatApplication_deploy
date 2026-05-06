@@ -22,7 +22,7 @@ builder.Host.UseSerilog();
 builder.Services.AddDbContext<RoomDbContext>(options =>
     options.UseNpgsql(
         builder.Configuration.GetConnectionString("DefaultConnection"),
-        npgsql => npgsql.MigrationsHistoryTable("__EFMigrationsHistory_Room_v2")));
+        npgsql => npgsql.MigrationsHistoryTable("__EFMigrationsHistory_Room")));
 
 // ── DI ────────────────────────────────────────────────────────────
 builder.Services.AddScoped<IChatRoomRepository, ChatRoomRepository>();

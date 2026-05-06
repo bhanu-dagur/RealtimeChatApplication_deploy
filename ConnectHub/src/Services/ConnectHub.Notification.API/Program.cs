@@ -24,7 +24,7 @@ builder.Host.UseSerilog();
 builder.Services.AddDbContext<NotificationDbContext>(options =>
     options.UseNpgsql(
         builder.Configuration.GetConnectionString("DefaultConnection"),
-        npgsql => npgsql.MigrationsHistoryTable("__EFMigrationsHistory_Notification_v2")));
+        npgsql => npgsql.MigrationsHistoryTable("__EFMigrationsHistory_Notification")));
 
 // ── DI ────────────────────────────────────────────────────────────
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
