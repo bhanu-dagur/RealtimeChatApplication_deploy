@@ -1,0 +1,245 @@
+# ───────────────────────────────────────────────────────────────
+# Render Blueprint — deploys all 7 backend services to free tier.
+# Frontend (Angular) is deployed separately on Vercel.
+#
+# Each service has its own thin Dockerfile (Dockerfile.<service>)
+# under ConnectHub/src/. We use per-service Dockerfiles instead of
+# ARG-driven shared Dockerfile because Render's render.yaml does
+# not pass docker build args at build time.
+#
+# After committing & pushing this file, in Render Dashboard:
+#   New + → Blueprint → select repo → Render reads this file.
+# Render will prompt for every env var marked `sync: false` —
+# paste the real value for each (it never gets committed to git).
+# ───────────────────────────────────────────────────────────────
+
+services:
+  # ── Auth.API ─────────────────────────────────────────────────
+  - type: web
+    name: connecthub-auth
+    runtime: docker
+    region: singapore
+    plan: free
+    rootDir: ConnectHub/src
+    dockerfilePath: ./Dockerfile.auth
+    dockerContext: .
+    autoDeploy: true
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: DOTNET_USE_POLLING_FILE_WATCHER
+        value: "true"
+      - key: ASPNETCORE_URLS
+        value: http://+:10000
+      - key: ConnectionStrings__DefaultConnection
+        sync: false
+      - key: Jwt__Key
+        sync: false
+      - key: Jwt__Issuer
+        value: ConnectHub
+      - key: Jwt__Audience
+        value: ConnectHubUsers
+      - key: Jwt__DurationInMinutes
+        value: "60"
+      - key: Google__ClientId
+        sync: false
+
+  # ── Message.API ──────────────────────────────────────────────
+  - type: web
+    name: connecthub-message
+    runtime: docker
+    region: singapore
+    plan: free
+    rootDir: ConnectHub/src
+    dockerfilePath: ./Dockerfile.message
+    dockerContext: .
+    autoDeploy: true
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: DOTNET_USE_POLLING_FILE_WATCHER
+        value: "true"
+      - key: ASPNETCORE_URLS
+        value: http://+:10000
+      - key: ConnectionStrings__DefaultConnection
+        sync: false
+      - key: Jwt__Key
+        sync: false
+      - key: Jwt__Issuer
+        value: ConnectHub
+      - key: Jwt__Audience
+        value: ConnectHubUsers
+      - key: Jwt__DurationInMinutes
+        value: "60"
+
+  # ── Room.API ─────────────────────────────────────────────────
+  - type: web
+    name: connecthub-room
+    runtime: docker
+    region: singapore
+    plan: free
+    rootDir: ConnectHub/src
+    dockerfilePath: ./Dockerfile.room
+    dockerContext: .
+    autoDeploy: true
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: DOTNET_USE_POLLING_FILE_WATCHER
+        value: "true"
+      - key: ASPNETCORE_URLS
+        value: http://+:10000
+      - key: ConnectionStrings__DefaultConnection
+        sync: false
+      - key: Jwt__Key
+        sync: false
+      - key: Jwt__Issuer
+        value: ConnectHub
+      - key: Jwt__Audience
+        value: ConnectHubUsers
+      - key: Jwt__DurationInMinutes
+        value: "60"
+      - key: Services__NotificationApi__Url
+        value: https://connecthub-notification-u9g6.onrender.com
+
+  # ── Hub.API (SignalR) ────────────────────────────────────────
+  - type: web
+    name: connecthub-hub
+    runtime: docker
+    region: singapore
+    plan: free
+    rootDir: ConnectHub/src
+    dockerfilePath: ./Dockerfile.hub
+    dockerContext: .
+    autoDeploy: true
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: DOTNET_USE_POLLING_FILE_WATCHER
+        value: "true"
+      - key: ASPNETCORE_URLS
+        value: http://+:10000
+      - key: Jwt__Key
+        sync: false
+      - key: Jwt__Issuer
+        value: ConnectHub
+      - key: Jwt__Audience
+        value: ConnectHubUsers
+      - key: Jwt__DurationInMinutes
+        value: "60"
+      - key: Services__AuthApi__Url
+        value: https://connecthub-auth-u9g6.onrender.com
+      - key: Redis__ConnectionString
+        sync: false
+
+  # ── Notification.API ─────────────────────────────────────────
+  - type: web
+    name: connecthub-notification
+    runtime: docker
+    region: singapore
+    plan: free
+    rootDir: ConnectHub/src
+    dockerfilePath: ./Dockerfile.notification
+    dockerContext: .
+    autoDeploy: true
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: DOTNET_USE_POLLING_FILE_WATCHER
+        value: "true"
+      - key: ASPNETCORE_URLS
+        value: http://+:10000
+      - key: ConnectionStrings__DefaultConnection
+        sync: false
+      - key: Jwt__Key
+        sync: false
+      - key: Jwt__Issuer
+        value: ConnectHub
+      - key: Jwt__Audience
+        value: ConnectHubUsers
+      - key: Jwt__DurationInMinutes
+        value: "60"
+      - key: Email__SmtpHost
+        value: smtp.gmail.com
+      - key: Email__SmtpPort
+        value: "587"
+      - key: Email__SenderName
+        value: ConnectHub
+      - key: Email__SenderEmail
+        value: noreply@connecthub.com
+      - key: Email__UserName
+        sync: false
+      - key: Email__Password
+        sync: false
+
+  # ── Media.API ────────────────────────────────────────────────
+  - type: web
+    name: connecthub-media
+    runtime: docker
+    region: singapore
+    plan: free
+    rootDir: ConnectHub/src
+    dockerfilePath: ./Dockerfile.media
+    dockerContext: .
+    autoDeploy: true
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: DOTNET_USE_POLLING_FILE_WATCHER
+        value: "true"
+      - key: ASPNETCORE_URLS
+        value: http://+:10000
+      - key: ConnectionStrings__DefaultConnection
+        sync: false
+      - key: Jwt__Key
+        sync: false
+      - key: Jwt__Issuer
+        value: ConnectHub
+      - key: Jwt__Audience
+        value: ConnectHubUsers
+      - key: Jwt__DurationInMinutes
+        value: "60"
+      - key: Cloudinary__CloudName
+        sync: false
+      - key: Cloudinary__ApiKey
+        sync: false
+      - key: Cloudinary__ApiSecret
+        sync: false
+
+  # ── Gateway (YARP) ───────────────────────────────────────────
+  - type: web
+    name: connecthub-gateway
+    runtime: docker
+    region: singapore
+    plan: free
+    rootDir: ConnectHub/src
+    dockerfilePath: ./Dockerfile.gateway
+    dockerContext: .
+    autoDeploy: true
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: DOTNET_USE_POLLING_FILE_WATCHER
+        value: "true"
+      - key: ASPNETCORE_URLS
+        value: http://+:10000
+      - key: Jwt__Key
+        sync: false
+      - key: Jwt__Issuer
+        value: ConnectHub
+      - key: Jwt__Audience
+        value: ConnectHubUsers
+      - key: Jwt__DurationInMinutes
+        value: "60"
+      - key: ReverseProxy__Clusters__auth-cluster__Destinations__auth-destination__Address
+        value: https://connecthub-auth-u9g6.onrender.com
+      - key: ReverseProxy__Clusters__message-cluster__Destinations__message-destination__Address
+        value: https://connecthub-message-u9g6.onrender.com
+      - key: ReverseProxy__Clusters__room-cluster__Destinations__room-destination__Address
+        value: https://connecthub-room-u9g6.onrender.com
+      - key: ReverseProxy__Clusters__hub-cluster__Destinations__hub-destination__Address
+        value: https://connecthub-hub-u9g6.onrender.com
+      - key: ReverseProxy__Clusters__notification-cluster__Destinations__notification-destination__Address
+        value: https://connecthub-notification-u9g6.onrender.com
+      - key: ReverseProxy__Clusters__media-cluster__Destinations__media-destination__Address
+        value: https://connecthub-media-u9g6.onrender.com

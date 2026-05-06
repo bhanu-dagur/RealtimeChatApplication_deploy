@@ -1,0 +1,298 @@
+<div class="dashboard">
+
+  <!-- ── Icon Sidebar ── -->
+  <aside class="icon-sidebar">
+    <!-- Logo -->
+    <div class="sidebar-logo">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+        <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" fill="var(--teal)" opacity="0.9" />
+      </svg>
+    </div>
+
+    <div class="sidebar-nav">
+      <!-- Conversations -->
+      <button class="nav-icon-btn" [class.active]="activeTab() === 'chats'" (click)="activeTab.set('chats')"
+        title="Conversations">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+        </svg>
+        <span class="nav-label">Chats</span>
+      </button>
+
+      <!-- Groups -->
+      <button class="nav-icon-btn" [class.active]="activeTab() === 'groups'" (click)="activeTab.set('groups')"
+        title="Groups">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+          <circle cx="9" cy="7" r="4" />
+          <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" />
+        </svg>
+        <span class="nav-label">Groups</span>
+      </button>
+
+      <!-- Contacts -->
+      <button class="nav-icon-btn" [class.active]="activeTab() === 'contacts'"
+        (click)="activeTab.set('contacts')" title="Contacts">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
+        </svg>
+        <span class="nav-label">Contacts</span>
+      </button>
+    </div>
+
+    <div class="sidebar-bottom">
+      <!-- Notifications -->
+      <button class="nav-icon-btn notif-btn" [routerLink]="['/notifications']" title="Notifications">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0" />
+        </svg>
+        @if (notifCount() > 0) {
+        <span class="notif-badge">{{ notifCount() }}</span>
+        }
+        <span class="nav-label">Alerts</span>
+      </button>
+
+      <!-- Settings -->
+      <button class="nav-icon-btn" [routerLink]="['/profile']" title="Settings">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3" />
+          <path
+            d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z" />
+        </svg>
+        <span class="nav-label">Settings</span>
+      </button>
+
+      <!-- Avatar -->
+      <div class="sidebar-user" (click)="logout()" title="Logout">
+        <app-avatar [name]="currentUser()?.displayName || ''" [imageUrl]="currentUser()?.avatarUrl || ''" [size]="34">
+        </app-avatar>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── Contacts / Groups Panel ── -->
+  <div class="contacts-panel" [class.mobile-hidden]="!showContactsPanelMobile()">
+
+    <!-- Panel Header -->
+    <div class="panel-header">
+      <h2 class="panel-title">
+        @switch (activeTab()) {
+          @case ('chats') { Messages }
+          @case ('contacts') { Contacts }
+          @case ('groups') { Groups }
+        }
+      </h2>
+
+      <!-- Search -->
+      <div class="search-box">
+        <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2.5">
+          <circle cx="11" cy="11" r="8" />
+          <path d="M21 21l-4.35-4.35" />
+        </svg>
+        <input type="text" placeholder="Search Chats..." [value]="searchQuery()"
+          (input)="onSearch($any($event.target).value)" />
+      </div>
+    </div>
+
+    <!-- ── Chats Tab ── -->
+    @if (activeTab() === 'chats') {
+    <div class="contact-list">
+
+      <!-- Search Results -->
+      @if (searchQuery() && searchResults().length > 0) {
+      <div class="list-section-label">Search Results</div>
+      @for (user of searchResults(); track user.userId) {
+      <div class="contact-item" [class.active]="activeContactId() === user.userId"
+        (click)="openDirectChat(user.userId)">
+        <app-avatar [name]="user.displayName" [imageUrl]="user.avatarUrl || ''" [size]="44"
+          [isOnline]="isOnline(user.userId)" [showOnline]="true">
+        </app-avatar>
+        <div class="contact-info">
+          <span class="contact-name">{{ user.displayName }}</span>
+          <span class="contact-sub">
+            {{ isOnline(user.userId) ? 'Active' : 'Offline' }}
+          </span>
+        </div>
+      </div>
+      }
+      }
+
+      <!-- All Conversations (sorted by latest message) -->
+      @if (!searchQuery()) {
+      @if (sidebarChats().length === 0) {
+      <div class="empty-state">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--gray-300)" stroke-width="1.5">
+          <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+        </svg>
+        <p>No conversations yet</p>
+        <button class="link-btn" (click)="activeTab.set('contacts')">Browse contacts →</button>
+      </div>
+      } @else {
+      @for (row of sidebarChats(); track row.user.userId) {
+      <div class="contact-item" [class.active]="activeContactId() === row.user.userId"
+        [class.has-unread]="row.unread > 0"
+        (click)="openDirectChat(row.user.userId)">
+        <app-avatar [name]="row.user.displayName" [imageUrl]="row.user.avatarUrl || ''" [size]="44"
+          [isOnline]="isOnline(row.user.userId)" [showOnline]="true">
+        </app-avatar>
+        <div class="contact-info">
+          <span class="contact-name">{{ row.user.displayName }}</span>
+          <span class="contact-sub">
+            @if (row.lastMessage) {
+              {{ row.lastMessage }}
+            } @else {
+              {{ isOnline(row.user.userId) ? '● Active' : 'Offline' }}
+            }
+          </span>
+        </div>
+        <div class="contact-meta">
+          <span class="contact-time">
+            @if (row.lastSentAt) {
+              {{ row.lastSentAt | chatTime:'auto' }}
+            } @else if (row.user.lastSeen) {
+              {{ row.user.lastSeen | timeAgo }}
+            }
+          </span>
+          @if (row.unread > 0) {
+            <span class="unread-badge">{{ row.unread > 99 ? '99+' : row.unread }}</span>
+          }
+        </div>
+      </div>
+      }
+      }
+      }
+    </div>
+    }
+
+    <!-- ── Contacts Tab ── -->
+    @if (activeTab() === 'contacts') {
+    <div class="contact-list">
+      @if (sidebarContacts().length === 0) {
+        <div class="empty-state">
+          <p>No users yet.</p>
+        </div>
+      } @else {
+        @for (user of sidebarContacts(); track user.userId) {
+          <div class="contact-item" (click)="openDirectChat(user.userId)">
+            <app-avatar [name]="user.displayName" [imageUrl]="user.avatarUrl || ''" [size]="44"
+              [isOnline]="isOnline(user.userId)" [showOnline]="true">
+            </app-avatar>
+            <div class="contact-info">
+              <span class="contact-name">{{ user.displayName }}</span>
+              <span class="contact-sub">&#64;{{ user.userName }}</span>
+            </div>
+            <div class="contact-meta">
+              <span class="contact-time">
+                {{ isOnline(user.userId) ? '● Active' : (user.lastSeen ? (user.lastSeen | timeAgo) : '') }}
+              </span>
+            </div>
+          </div>
+        }
+      }
+    </div>
+    }
+
+    <!-- ── Groups Tab ── -->
+    @if (activeTab() === 'groups') {
+    <div class="contact-list">
+
+      <!-- Routes to /rooms (Discover / My Rooms browse screen). The button label
+           is intentionally kept as "Create Group" per the existing UX vocabulary,
+           but it no longer auto-opens the create-room modal — the user lands on
+           the room browser and can choose Discover, My Rooms, or "+ New Room". -->
+      <button class="create-group-btn" [routerLink]="['/rooms']">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="12" y1="5" x2="12" y2="19" />
+          <line x1="5" y1="12" x2="19" y2="12" />
+        </svg>
+        Create Group
+      </button>
+
+      <div class="list-section-label">My Rooms</div>
+
+      @if (sidebarRooms().length === 0) {
+      <div class="empty-state">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--gray-300)" stroke-width="1.5">
+          <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+          <circle cx="9" cy="7" r="4" />
+          <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" />
+        </svg>
+        <p>No rooms joined yet</p>
+        <a routerLink="/rooms" class="link-btn">Browse rooms →</a>
+      </div>
+      } @else {
+      @for (row of sidebarRooms(); track row.room.roomId) {
+      <div class="contact-item"
+           [class.active]="activeRoomId() === row.room.roomId"
+           [class.has-unread]="row.unread > 0"
+           (click)="openRoomChat(row.room.roomId)">
+        <div class="room-avatar">
+          {{ getRoomInitial(row.room.roomName) }}
+        </div>
+        <div class="contact-info">
+          <span class="contact-name">{{ row.room.roomName }}</span>
+          <span class="contact-sub">
+            @if (row.lastMessage) {
+              @if (row.lastSenderName) {
+                <strong>{{ row.lastSenderName }}:</strong>
+              }
+              {{ row.lastMessage }}
+            } @else {
+              {{ row.room.memberCount }} members
+            }
+          </span>
+        </div>
+        <div class="contact-meta">
+          <span class="contact-time">
+            @if (row.lastSentAt) {
+              {{ row.lastSentAt | chatTime:'auto' }}
+            }
+          </span>
+          @if (row.unread > 0) {
+            <span class="unread-badge">{{ row.unread > 99 ? '99+' : row.unread }}</span>
+          }
+        </div>
+      </div>
+      }
+      }
+    </div>
+    }
+
+  </div>
+
+  <!-- ── Main Chat Area ── -->
+  <div class="chat-main" [class.mobile-hidden]="showContactsPanelMobile()">
+    @if (showWelcome()) {
+    <!-- Welcome Screen -->
+    <div class="welcome-screen">
+      <div class="welcome-content">
+        <div class="welcome-icon">
+          <svg width="52" height="52" viewBox="0 0 24 24" fill="none">
+            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" fill="var(--teal)" opacity="0.15" />
+            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" stroke="var(--teal)" stroke-width="1.5"
+              fill="none" />
+          </svg>
+        </div>
+        <h2 class="welcome-title">Welcome to ConnectHub</h2>
+        <p class="welcome-sub">
+          Select a contact or room from the left to start chatting.
+        </p>
+        <div class="welcome-actions">
+          <button class="welcome-btn teal" (click)="activeTab.set('chats')">
+            Start a Chat
+          </button>
+          <button class="welcome-btn outline" [routerLink]="['/rooms']">
+            Browse Rooms
+          </button>
+        </div>
+      </div>
+    </div>
+    } @else {
+    <!-- Router outlet — chat pages render here -->
+    <router-outlet></router-outlet>
+    }
+  </div>
+
+</div>

@@ -1,0 +1,83 @@
+# ── Node / Angular ──────────────────────────────────────────────
+node_modules/
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Angular build output + cache
+**/dist/
+**/.angular/cache/
+**/out-tsc/
+**/tmp/
+**/coverage/
+**/__screenshots__/
+
+# ── .NET / ConnectHub backend ───────────────────────────────────
+**/bin/
+**/obj/
+**/.vs/
+*.user
+*.suo
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+
+# Test results / publish
+**/TestResults/
+**/PublishProfiles/
+**/publish/
+**/artifacts/
+
+# ── Environment / secrets ───────────────────────────────────────
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+credentials.txt
+**/appsettings.Development.json
+**/appsettings.Local.json
+# .env.example IS committed (contains placeholders only)
+!.env.example
+
+# ── Docker ──────────────────────────────────────────────────────
+.docker/
+docker-compose.override.yml
+
+# ── Editors / IDEs ──────────────────────────────────────────────
+.idea/
+.history/
+*.swp
+*.swo
+
+# VS Code — keep shared workspace settings, ignore per-user state
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/mcp.json
+
+.claude/*
+
+# JetBrains Rider
+*.sln.iml
+*.sln.DotSettings.user
+
+# ── Logs ────────────────────────────────────────────────────────
+*.log
+logs/
+
+# ── OS junk ─────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# ── Claude / local agent state ──────────────────────────────────
+.claude/settings.local.json
+.claude/cache/

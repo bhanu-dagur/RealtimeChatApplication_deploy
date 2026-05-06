@@ -1,0 +1,178 @@
+<div class="chat-view">
+
+  <!-- Chat Header -->
+  <div class="chat-header">
+    <button class="mobile-back" (click)="goBackToList()" title="Back to chats">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <polyline points="15 18 9 12 15 6" />
+      </svg>
+    </button>
+
+    <app-avatar [name]="receiver()?.displayName || ''" [imageUrl]="receiver()?.avatarUrl || ''" [size]="40"
+      [isOnline]="receiverOnline()" [showOnline]="true">
+    </app-avatar>
+
+    <div class="header-info">
+      <span class="header-name">{{ receiver()?.displayName }}</span>
+      <span class="header-status" [class.online]="receiverOnline()">
+        @if (receiverOnline()) {
+          <span class="status-dot"></span> Online
+        } @else if (receiver()?.lastSeen) {
+          last seen {{ receiver()!.lastSeen! | timeAgo }}
+        } @else {
+          Offline
+        }
+      </span>
+    </div>
+
+    <div class="header-actions">
+      <button class="icon-action" title="Voice call">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path
+            d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.22 1.18 2 2 0 012.22 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.72 6.72l1.27-.56a2 2 0 012.11.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" />
+        </svg>
+      </button>
+      <button class="icon-action" title="Video call">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="23 7 16 12 23 17 23 7" />
+          <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+        </svg>
+      </button>
+      <button class="icon-action" title="Search messages" (click)="toggleSearch()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8" />
+          <path d="M21 21l-4.35-4.35" />
+        </svg>
+      </button>
+      <button class="icon-action" title="More">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="1" />
+          <circle cx="19" cy="12" r="1" />
+          <circle cx="5" cy="12" r="1" />
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  @if (showSearch()) {
+    <div class="chat-search-bar">
+      <input type="text" placeholder="Search this conversation…"
+        [value]="searchKeyword()"
+        (input)="runSearch($any($event.target).value)" autofocus />
+      <button class="search-close" (click)="toggleSearch()">✕</button>
+    </div>
+    @if (searchKeyword()) {
+      <div class="search-results-panel">
+        @if (isSearching()) {
+          <div class="search-loading">Searching…</div>
+        } @else if (searchResults().length === 0) {
+          <div class="search-empty">No matches.</div>
+        } @else {
+          <div class="search-count">{{ searchResults().length }} result(s)</div>
+          @for (m of searchResults(); track m.messageId) {
+            <button class="search-hit" (click)="jumpToMessage(m.messageId); toggleSearch()">
+              <span class="search-hit-when">{{ m.sentAt | chatTime:'auto' }}</span>
+              <span class="search-hit-text">{{ m.content }}</span>
+            </button>
+          }
+        }
+      </div>
+    }
+  }
+
+  <!-- Messages -->
+  <div class="messages-wrap" #messagesWrap (scroll)="onMessagesScroll()">
+
+    @if (hasMore() && !isLoading()) {
+      <div class="load-more-row">
+        <button class="load-more-btn" (click)="loadMore()" [disabled]="isLoadingMore()">
+          @if (isLoadingMore()) {
+            Loading older messages…
+          } @else {
+            Load older messages
+          }
+        </button>
+      </div>
+    }
+
+    @if (isLoading()) {
+      <div class="loading-state">
+        <div class="dot-spin"></div>
+        Loading messages...
+      </div>
+    }
+
+    @for (msg of messages(); track msg.messageId) {
+      <div [id]="'msg-' + msg.messageId">
+        <app-message-bubble
+          [message]="msg"
+          [isMine]="isMine(msg)"
+          [senderName]="msg.senderName || receiver()?.displayName || ''"
+          [senderAvatarUrl]="receiver()?.avatarUrl || ''"
+          [replyPreview]="replyPreviewFor(msg)"
+          [searchHighlight]="searchHighlight()"
+          (action)="onMessageAction($event)">
+        </app-message-bubble>
+      </div>
+    }
+
+    <div #messagesEnd></div>
+  </div>
+
+  @if (hasNewBelow()) {
+    <button class="new-messages-pill" (click)="jumpToLatest()">
+      ↓ New messages
+    </button>
+  }
+
+  <!-- Input Area -->
+  <div class="input-area">
+
+    @if (replyTo(); as r) {
+      <div class="reply-compose">
+        <div class="reply-compose-bar"></div>
+        <div class="reply-compose-info">
+          <span class="reply-compose-name">
+            Replying to {{ r.senderId === currentUser()?.userId ? 'yourself' : (r.senderName || receiver()?.displayName) }}
+          </span>
+          <span class="reply-compose-text">{{ r.content }}</span>
+        </div>
+        <button class="reply-compose-close" (click)="cancelReply()" title="Cancel reply">✕</button>
+      </div>
+    }
+
+    <div class="input-box" [class.focused]="newMessage()">
+
+      <app-file-upload [receiverId]="receiver()?.userId" (uploaded)="onFileUploaded($event)">
+      </app-file-upload>
+
+      <input type="text" class="msg-input" placeholder="Type a message..." [value]="newMessage()"
+        (input)="newMessage.set($any($event.target).value)" (keydown)="onKeydown($event)" />
+
+      <div class="emoji-anchor">
+        <button class="emoji-btn" type="button" title="Emoji" (click)="toggleEmojiPicker()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M8 14s1.5 2 4 2 4-2 4-2" />
+            <line x1="9" y1="9" x2="9.01" y2="9" />
+            <line x1="15" y1="9" x2="15.01" y2="9" />
+          </svg>
+        </button>
+        @if (showEmojiPicker()) {
+          <div class="emoji-popover-wrap">
+            <app-emoji-picker (emojiSelected)="onEmojiSelected($event)"></app-emoji-picker>
+          </div>
+        }
+      </div>
+
+      <button type="button" class="send-btn" (click)="sendMessage()" [disabled]="!newMessage().trim()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
+          <line x1="22" y1="2" x2="11" y2="13" />
+          <polygon points="22 2 15 22 11 13 2 9 22 2" />
+        </svg>
+      </button>
+
+    </div>
+  </div>
+
+</div>

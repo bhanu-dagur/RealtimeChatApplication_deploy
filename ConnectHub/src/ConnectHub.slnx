@@ -1,0 +1,14 @@
+<Solution>
+  <Project Path="ConnectHub.Gateway/ConnectHub.Gateway.csproj" />
+  <Folder Name="/Services/">
+    <Project Path="Services/ConnectHub.Auth.API/ConnectHub.Auth.API.csproj" />
+    <Project Path="Services/ConnectHub.Hub.API/ConnectHub.Hub.API.csproj" />
+    <Project Path="Services/ConnectHub.Media.API/ConnectHub.Media.API.csproj" />
+    <Project Path="Services/ConnectHub.Message.API/ConnectHub.Message.API.csproj" />
+    <Project Path="Services/ConnectHub.Notification.API/ConnectHub.Notification.API.csproj" />
+    <Project Path="Services/ConnectHub.Room.API/ConnectHub.Room.API.csproj" />
+  </Folder>
+  <Folder Name="/Shared/">
+    <Project Path="Shared/ConnectHub.Shared/ConnectHub.Shared.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,106 @@
+<div class="msg-row" [class.mine]="isMine">
+
+  @if (!isMine && showAvatar) {
+    <app-avatar [name]="senderName" [imageUrl]="senderAvatarUrl" [size]="30"></app-avatar>
+  }
+
+  <div class="bubble-col" [class.mine]="isMine">
+
+    @if (!isMine) {
+      <span class="sender-name">{{ senderName }}</span>
+    }
+
+    <div class="bubble" [class.mine]="isMine" [class.theirs]="!isMine" [class.deleted]="message.isDeleted"
+      (contextmenu)="onContextMenu($event)"
+      (touchstart)="onTouchStart()"
+      (touchmove)="cancelPress()"
+      (touchend)="cancelPress()"
+      (touchcancel)="cancelPress()">
+
+      @if (replyPreview) {
+        <div class="reply-quote" (click)="onReplyPreviewClick()" title="Jump to original message">
+          <span class="reply-quote-name">{{ replyPreview.senderName }}</span>
+          <span class="reply-quote-text">{{ replyPreview.content }}</span>
+        </div>
+      }
+
+      @if (editing()) {
+        <textarea
+          class="bubble-edit"
+          [ngModel]="draft()"
+          (ngModelChange)="draft.set($event)"
+          rows="2"
+          (keydown)="onEditKeydown($event)"></textarea>
+        <div class="edit-actions">
+          <button class="edit-cancel" (click)="cancelEdit()">Cancel</button>
+          <button class="edit-save" (click)="saveEdit()">Save</button>
+        </div>
+      } @else if (!message.isDeleted && isImage()) {
+        <img [src]="message.mediaUrl" class="bubble-img" [alt]="message.content || 'image'" />
+        @if (message.content) {
+          <span class="bubble-text media-caption">{{ message.content }}</span>
+        }
+      } @else if (!message.isDeleted && isAudio()) {
+        <audio class="bubble-audio" controls preload="metadata" [src]="message.mediaUrl"></audio>
+      } @else if (!message.isDeleted && isFile()) {
+        <a class="bubble-file" [href]="message.mediaUrl" target="_blank" rel="noopener" [download]="message.content">
+          📎 <span class="bubble-file-name">{{ message.content || 'Download file' }}</span>
+        </a>
+      } @else {
+        <span class="bubble-text" [class.deleted-text]="message.isDeleted">
+          @if (searchHighlight) {
+            @for (p of highlightedParts(); track $index) {
+              @if (p.match) { <mark class="search-mark">{{ p.text }}</mark> }
+              @else { {{ p.text }} }
+            }
+          } @else {
+            {{ message.content }}
+          }
+        </span>
+      }
+
+      <div class="bubble-footer">
+        <span class="bubble-time" [title]="message.sentAt | chatTime:'full'">
+          {{ message.sentAt | chatTime:'time' }}
+        </span>
+        @if (message.isEdited && !message.isDeleted) {
+          <span class="edited-tag" title="Edited">(edited)</span>
+        }
+        @if (isMine && !message.isDeleted) {
+          @switch (deliveryState()) {
+            @case ('pending') {
+              <span class="tick pending" title="Sending…">⏱</span>
+            }
+            @case ('sent') {
+              <span class="tick sent" title="Sent">✓</span>
+            }
+            @case ('delivered') {
+              <span class="tick delivered" title="Delivered">✓✓</span>
+            }
+            @case ('read') {
+              <span class="tick read" title="Read">✓✓</span>
+            }
+          }
+        }
+      </div>
+
+      @if (!editing() && (canModify() || canDeleteForMe())) {
+        <button class="msg-menu-btn" (click)="toggleMenu(); $event.stopPropagation()" title="More">⋯</button>
+        @if (menuOpen()) {
+          <div class="msg-menu" (click)="$event.stopPropagation()">
+            <button class="msg-menu-item" (click)="reply()">↩️ Reply</button>
+            @if (canModify()) {
+              <button class="msg-menu-item" (click)="startEdit()">✏️ Edit</button>
+              <button class="msg-menu-item danger" (click)="confirmDelete()">🗑 Delete for everyone</button>
+            }
+            @if (canDeleteForMe()) {
+              <button class="msg-menu-item" (click)="confirmDeleteForMe()">👁 Delete for me</button>
+            }
+          </div>
+        }
+      }
+
+    </div>
+  </div>
+
+</div>

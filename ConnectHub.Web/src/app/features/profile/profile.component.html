@@ -1,0 +1,319 @@
+<div class="profile-page">
+
+  <!-- Header -->
+  <div class="profile-header">
+    <button class="back-btn" (click)="goBack()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="15 18 9 12 15 6" />
+      </svg>
+    </button>
+    <h1 class="page-title">Settings</h1>
+  </div>
+
+  <div class="profile-body">
+
+    <!-- Left: Profile Card + Menu -->
+    <div class="profile-left">
+
+      <!-- Profile Card -->
+      <div class="profile-card">
+        @if (isLoading()) {
+        <div class="card-loading">
+          <div class="dot-spin"></div>
+        </div>
+        } @else {
+        <div class="profile-avatar-wrap">
+          <app-avatar [name]="profile()?.displayName || currentUser()?.displayName || ''"
+            [imageUrl]="profile()?.avatarUrl || ''" [size]="80" [isOnline]="true" [showOnline]="true">
+          </app-avatar>
+          <button class="change-avatar-btn" title="Change photo">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
+              <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
+            </svg>
+          </button>
+        </div>
+        <div class="profile-name">
+          {{ profile()?.displayName || currentUser()?.displayName }}
+        </div>
+        <div class="profile-username">
+          &#64;{{ profile()?.userName || currentUser()?.userName }}
+        </div>
+        <div class="profile-email">
+          {{ profile()?.email || currentUser()?.email }}
+        </div>
+        }
+      </div>
+
+      <!-- Menu -->
+      <div class="side-menu">
+        <button class="menu-item" [class.active]="activeTab() === 'profile'" (click)="activeTab.set('profile')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
+          </svg>
+          Profile Info
+        </button>
+
+        <button class="menu-item" [class.active]="activeTab() === 'security'" (click)="activeTab.set('security')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+            <path d="M7 11V7a5 5 0 0110 0v4" />
+          </svg>
+          Security
+        </button>
+
+        <button class="menu-item" [class.active]="activeTab() === 'notifications'"
+          (click)="activeTab.set('notifications')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0" />
+          </svg>
+          Notifications
+        </button>
+
+        <button class="menu-item" [class.active]="activeTab() === 'privacy'" (click)="activeTab.set('privacy')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+          </svg>
+          Privacy
+        </button>
+
+        <div class="menu-divider"></div>
+
+        <button class="menu-item danger" (click)="logout()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
+          </svg>
+          Sign Out
+        </button>
+      </div>
+    </div>
+
+    <!-- Right: Settings Content -->
+    <div class="profile-right">
+
+      <!-- ── Profile Tab ── -->
+      @if (activeTab() === 'profile') {
+      <div class="settings-card">
+        <div class="card-title">Profile Information</div>
+
+        @if (saveSuccess()) {
+        <div class="success-alert">
+          ✓ Profile saved successfully!
+        </div>
+        }
+        @if (saveError()) {
+        <div class="error-alert">
+          ⚠ {{ saveError() }}
+        </div>
+        }
+
+        <div class="form-group">
+          <label>Display Name</label>
+          <div class="input-wrap">
+            <span class="input-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
+            </span>
+            <input type="text" [(ngModel)]="displayName" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Username</label>
+          <div class="input-wrap">
+            <span class="input-icon at-icon">@</span>
+            <input type="text" [value]="profile()?.userName || ''" readonly class="readonly-input" />
+          </div>
+          <span class="field-hint">Username cannot be changed</span>
+        </div>
+
+        <div class="form-group">
+          <label>Email Address</label>
+          <div class="input-wrap">
+            <span class="input-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                <polyline points="22,6 12,13 2,6" />
+              </svg>
+            </span>
+            <input type="email" [value]="profile()?.email || ''" readonly class="readonly-input" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Bio</label>
+          <div class="input-wrap">
+            <span class="input-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="21" y1="10" x2="3" y2="10" />
+                <line x1="21" y1="6" x2="3" y2="6" />
+                <line x1="21" y1="14" x2="3" y2="14" />
+              </svg>
+            </span>
+            <input type="text" [(ngModel)]="bio" placeholder="Tell everyone about yourself..." />
+          </div>
+        </div>
+
+        <button class="save-btn" (click)="saveProfile()" [disabled]="isSaving()">
+          @if (isSaving()) {
+          <span class="btn-spin"></span> Saving...
+          } @else {
+          Save Changes
+          }
+        </button>
+      </div>
+      }
+
+      <!-- ── Security Tab ── -->
+      @if (activeTab() === 'security') {
+      <div class="settings-card">
+        <div class="card-title">Change Password</div>
+
+        @if (passwordSuccess()) {
+        <div class="success-alert">
+          ✓ Password changed successfully.
+        </div>
+        }
+        @if (passwordError()) {
+        <div class="error-alert">
+          ⚠ {{ passwordError() }}
+        </div>
+        }
+
+        <div class="form-group">
+          <label>Current Password</label>
+          <div class="input-wrap">
+            <input type="password" autocomplete="current-password"
+                   [(ngModel)]="oldPassword" placeholder="Enter your current password" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>New Password</label>
+          <div class="input-wrap">
+            <input type="password" autocomplete="new-password"
+                   [(ngModel)]="newPassword" placeholder="At least 6 characters" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Confirm New Password</label>
+          <div class="input-wrap">
+            <input type="password" autocomplete="new-password"
+                   [(ngModel)]="confirmPassword" placeholder="Re-enter your new password" />
+          </div>
+        </div>
+
+        <button class="save-btn" (click)="changePassword()" [disabled]="isChangingPassword()">
+          @if (isChangingPassword()) {
+            <span class="btn-spin"></span> Updating…
+          } @else {
+            Update Password
+          }
+        </button>
+      </div>
+      }
+
+      <!-- ── Notifications Tab ── -->
+      @if (activeTab() === 'notifications') {
+      <div class="settings-card">
+        <div class="card-title">Notification Preferences</div>
+
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <div class="toggle-name">Direct Messages</div>
+            <div class="toggle-desc">Get notified when someone messages you</div>
+          </div>
+          <div class="toggle" [class.on]="notifDM()" (click)="notifDM.set(!notifDM())">
+          </div>
+        </div>
+
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <div class="toggle-name">Room Messages</div>
+            <div class="toggle-desc">Notifications for group room messages</div>
+          </div>
+          <div class="toggle" [class.on]="notifRooms()" (click)="notifRooms.set(!notifRooms())">
+          </div>
+        </div>
+
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <div class="toggle-name">Mentions</div>
+            <div class="toggle-desc">Alert when someone &#64;mentions you</div>
+          </div>
+          <div class="toggle" [class.on]="notifMentions()" (click)="notifMentions.set(!notifMentions())">
+          </div>
+        </div>
+
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <div class="toggle-name">Email Notifications</div>
+            <div class="toggle-desc">Receive emails when you're offline</div>
+          </div>
+          <div class="toggle" [class.on]="notifEmail()" (click)="notifEmail.set(!notifEmail())">
+          </div>
+        </div>
+
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <div class="toggle-name">Sound Alerts</div>
+            <div class="toggle-desc">Play sound on new message</div>
+          </div>
+          <div class="toggle" [class.on]="notifSound()" (click)="notifSound.set(!notifSound())">
+          </div>
+        </div>
+      </div>
+      }
+
+      <!-- ── Privacy Tab ── -->
+      @if (activeTab() === 'privacy') {
+      <div class="settings-card">
+        <div class="card-title">Privacy Settings</div>
+
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <div class="toggle-name">Show Online Status</div>
+            <div class="toggle-desc">Let others see when you're online</div>
+          </div>
+          <div class="toggle" [class.on]="showOnline()" (click)="showOnline.set(!showOnline())">
+          </div>
+        </div>
+
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <div class="toggle-name">Read Receipts</div>
+            <div class="toggle-desc">Send read confirmation to senders</div>
+          </div>
+          <div class="toggle" [class.on]="readReceipts()" (click)="readReceipts.set(!readReceipts())">
+          </div>
+        </div>
+
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <div class="toggle-name">Show Last Seen</div>
+            <div class="toggle-desc">Display your last active time</div>
+          </div>
+          <div class="toggle" [class.on]="showLastSeen()" (click)="showLastSeen.set(!showLastSeen())">
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-card danger-zone">
+        <div class="card-title">Danger Zone</div>
+        <p class="danger-desc">
+          Once you deactivate your account, all your messages and data
+          will remain but your account will be inaccessible.
+        </p>
+        <button class="danger-btn">Deactivate Account</button>
+      </div>
+      }
+
+    </div>
+  </div>
+</div>

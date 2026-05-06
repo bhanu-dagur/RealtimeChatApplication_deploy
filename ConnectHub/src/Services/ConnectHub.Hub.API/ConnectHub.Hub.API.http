@@ -1,0 +1,6 @@
+@ConnectHub.Hub.API_HostAddress = http://localhost:5042
+
+GET {{ConnectHub.Hub.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

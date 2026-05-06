@@ -1,0 +1,291 @@
+<div class="rooms-page">
+
+    <!-- ── Header ── -->
+    <div class="rooms-header">
+        <div class="header-left">
+            <button class="back-btn" (click)="goBack()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="15 18 9 12 15 6" />
+                </svg>
+            </button>
+            <div>
+                <h1 class="page-title">Rooms</h1>
+                <p class="page-sub">
+                    {{ activeTab() === 'discover'
+                    ? publicRooms().length + ' public rooms available'
+                    : myRooms().length + ' rooms joined' }}
+                </p>
+            </div>
+        </div>
+
+        <button class="create-btn" (click)="openCreate()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            New Room
+        </button>
+    </div>
+
+    <!-- ── Tabs + Search ── -->
+    <div class="rooms-toolbar">
+        <div class="tabs">
+            <button class="tab-btn" [class.active]="activeTab() === 'discover'" (click)="switchTab('discover')">
+                🌐 Discover
+            </button>
+            <button class="tab-btn" [class.active]="activeTab() === 'my'" (click)="switchTab('my')">
+                🏠 My Rooms
+                @if (myRooms().length > 0) {
+                <span class="tab-count">{{ myRooms().length }}</span>
+                }
+            </button>
+        </div>
+
+        <div class="search-box">
+            <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2.5">
+                <circle cx="11" cy="11" r="8" />
+                <path d="M21 21l-4.35-4.35" />
+            </svg>
+            <input type="text" placeholder="Search rooms..." [value]="searchQuery()"
+                (input)="onSearch($any($event.target).value)" />
+        </div>
+    </div>
+
+    <!-- ── Body ── -->
+    <div class="rooms-body">
+
+        @if (isLoading()) {
+        <div class="loading-state">
+            <div class="dot-spin"></div>
+            Loading rooms...
+        </div>
+        } @else if (filtered().length === 0) {
+        <div class="empty-state">
+            <div class="empty-icon">🏠</div>
+            <h3>
+                {{ searchQuery()
+                ? 'No rooms match "' + searchQuery() + '"'
+                : activeTab() === 'my' ? 'You haven\'t joined any rooms yet' : 'No rooms available' }}
+            </h3>
+            <p>
+                {{ activeTab() === 'my'
+                ? 'Discover public rooms and join the conversation!'
+                : 'Be the first to create a room!' }}
+            </p>
+            @if (activeTab() === 'my') {
+            <button class="empty-action-btn" (click)="switchTab('discover')">
+                Discover Rooms →
+            </button>
+            } @else {
+            <button class="empty-action-btn" (click)="openCreate()">
+                Create a Room →
+            </button>
+            }
+        </div>
+        } @else {
+        <div class="rooms-grid">
+            @for (room of filtered(); track room.roomId) {
+            <div class="room-card">
+
+                <!-- Room Avatar -->
+                <div class="room-card-top">
+                    <div class="room-card-avatar">
+                        {{ getRoomInitial(room.roomName) }}
+                    </div>
+                    <div class="room-type-badge" [class.public]="room.roomType === 'PUBLIC'"
+                        [class.private]="room.roomType === 'PRIVATE'">
+                        @if (room.roomType === 'PUBLIC') {
+                        🌐 Public
+                        } @else {
+                        🔒 Private
+                        }
+                    </div>
+                </div>
+
+                <!-- Room Info -->
+                <div class="room-card-info">
+                    <h3 class="room-card-name">{{ room.roomName }}</h3>
+                    <p class="room-card-desc">
+                        {{ room.description || 'No description provided.' }}
+                    </p>
+                </div>
+
+                <!-- Room Stats -->
+                <div class="room-card-stats">
+                    <div class="stat">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+                            <circle cx="9" cy="7" r="4" />
+                            <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" />
+                        </svg>
+                        {{ room.memberCount }} / {{ room.maxMembers }}
+                    </div>
+                    @if (isMyRoom(room.roomId)) {
+                    <div class="joined-badge">✓ Joined</div>
+                    }
+                </div>
+
+                <!-- Action Button -->
+                <button class="room-action-btn" [class.joined]="isMyRoom(room.roomId)"
+                    [disabled]="isJoining() === room.roomId" (click)="joinRoom(room)">
+
+                    @if (isJoining() === room.roomId) {
+                    <span class="btn-spin"></span>
+                    Joining...
+                    } @else if (isMyRoom(room.roomId)) {
+                    Open Chat →
+                    } @else {
+                    Join Room
+                    }
+                </button>
+
+            </div>
+            }
+        </div>
+        }
+    </div>
+
+    <!-- ── Create Room Modal ── -->
+    @if (showCreate()) {
+    <div class="modal-overlay" (click)="closeCreate()">
+        <div class="modal" (click)="$event.stopPropagation()">
+
+            <div class="modal-header v2">
+                <h2 class="modal-title v2">Create Room</h2>
+                <button class="modal-close" (click)="closeCreate()" aria-label="Close">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                </button>
+            </div>
+
+            @if (createError()) {
+            <div class="modal-error">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="8" x2="12" y2="12" />
+                    <line x1="12" y1="16" x2="12.01" y2="16" />
+                </svg>
+                {{ createError() }}
+            </div>
+            }
+
+            <div class="modal-body v2">
+
+                <div class="field">
+                    <label class="field-label required">Room Name</label>
+                    <div class="input-wrap pill">
+                        <span class="input-icon hash">#</span>
+                        <input type="text" [(ngModel)]="newRoom.roomName"
+                            placeholder="e.g. dev-team, design, general" />
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="field-label">Description</label>
+                    <div class="input-wrap pill">
+                        <span class="input-icon">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <line x1="21" y1="10" x2="3" y2="10" />
+                                <line x1="21" y1="6" x2="3" y2="6" />
+                                <line x1="21" y1="14" x2="3" y2="14" />
+                            </svg>
+                        </span>
+                        <input type="text" [(ngModel)]="newRoom.description" placeholder="What is this room about?" />
+                    </div>
+                </div>
+
+                <fieldset class="field">
+                    <legend class="field-label">Room Type</legend>
+                    <div class="type-stack" role="radiogroup" aria-label="Room visibility">
+                        <label class="type-row" [class.selected]="newRoom.roomType === RoomType.PUBLIC">
+                            <input type="radio" name="roomType" [value]="RoomType.PUBLIC"
+                                [(ngModel)]="newRoom.roomType" />
+                            <span class="type-radio" aria-hidden="true"></span>
+                            <span class="type-row-icon globe">🌐</span>
+                            <span class="type-row-info">
+                                <span class="type-row-title">Public</span>
+                                <span class="type-row-caption">ANYONE CAN JOIN AND SEE MESSAGES</span>
+                            </span>
+                        </label>
+
+                        <label class="type-row" [class.selected]="newRoom.roomType === RoomType.PRIVATE">
+                            <input type="radio" name="roomType" [value]="RoomType.PRIVATE"
+                                [(ngModel)]="newRoom.roomType" />
+                            <span class="type-radio" aria-hidden="true"></span>
+                            <span class="type-row-icon lock">🔒</span>
+                            <span class="type-row-info">
+                                <span class="type-row-title">Private</span>
+                                <span class="type-row-caption">ONLY INVITED MEMBERS CAN JOIN</span>
+                            </span>
+                        </label>
+                    </div>
+                </fieldset>
+
+                <div class="field members-field">
+                    <div class="members-head">
+                        <h3 class="members-title">Add Members</h3>
+                        <span class="members-pill">{{ selectedMemberIds().size }} SELECTED</span>
+                    </div>
+
+                    <div class="input-wrap pill">
+                        <span class="input-icon">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <circle cx="11" cy="11" r="8" />
+                                <path d="M21 21l-4.35-4.35" />
+                            </svg>
+                        </span>
+                        <input type="text" placeholder="Search by name, username or email"
+                            [value]="contactQuery()"
+                            (input)="onContactQuery($any($event.target).value)" />
+                    </div>
+
+                    <div class="member-picker v2">
+                        @if (!contactsLoaded()) {
+                            <div class="member-picker-loading">Loading contacts…</div>
+                        } @else if (filteredContacts().length === 0) {
+                            <div class="member-picker-empty">No contacts match.</div>
+                        } @else {
+                            @for (u of filteredContacts(); track u.userId) {
+                                <label class="member-row v2" [class.selected]="isMemberSelected(u.userId)">
+                                    <input type="checkbox"
+                                        [checked]="isMemberSelected(u.userId)"
+                                        (change)="toggleMember(u.userId)" />
+                                    <span class="member-checkbox" aria-hidden="true"></span>
+                                    <span class="member-letter"
+                                        [style.background]="avatarBgFor(u.displayName || u.userName)">
+                                        {{ (u.displayName || u.userName || '?').charAt(0).toUpperCase() }}
+                                    </span>
+                                    <span class="member-row-info">
+                                        <span class="member-row-name">{{ (u.displayName || '').toUpperCase() }}</span>
+                                        <span class="member-row-sub">&#64;{{ u.userName }}</span>
+                                    </span>
+                                </label>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer v2">
+                <button class="primary-btn v2" (click)="createRoom()"
+                    [disabled]="isCreating() || !newRoom.roomName.trim()">
+                    @if (isCreating()) {
+                    <span class="btn-spin"></span> Creating…
+                    } @else {
+                    Create Room
+                    }
+                </button>
+                <button class="ghost-btn v2" (click)="closeCreate()">Cancel</button>
+            </div>
+
+        </div>
+    </div>
+    }
+
+</div>

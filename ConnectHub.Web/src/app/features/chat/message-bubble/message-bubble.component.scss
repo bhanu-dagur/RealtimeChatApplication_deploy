@@ -1,0 +1,188 @@
+.msg-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  margin-bottom: 6px;
+  padding: 0 6px;
+
+  &.mine {
+    justify-content: flex-end;
+  }
+}
+
+.bubble-col {
+  display: flex;
+  flex-direction: column;
+  max-width: 70%;
+  align-items: flex-start;
+
+  &.mine { align-items: flex-end; }
+}
+
+.sender-name {
+  font-size: 11px;
+  color: #6b7280;
+  margin: 0 8px 2px;
+  font-weight: 500;
+}
+
+.bubble {
+  position: relative;
+  padding: 8px 12px;
+  border-radius: 14px;
+  background: #f1f3f5;
+  color: #111827;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+
+  &.mine {
+    background: #2563eb;
+    color: #fff;
+    border-bottom-right-radius: 4px;
+  }
+  &.theirs { border-bottom-left-radius: 4px; }
+  &.deleted { opacity: 0.7; font-style: italic; }
+}
+
+.bubble-text { display: block; font-size: 14px; line-height: 1.4; }
+.deleted-text { color: inherit; }
+
+.bubble-img {
+  max-width: 240px;
+  max-height: 240px;
+  border-radius: 8px;
+  display: block;
+}
+
+.bubble-footer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  font-size: 10px;
+  opacity: 0.7;
+}
+
+.edited-tag { font-style: italic; }
+
+/* WhatsApp-style ticks
+   - default      → ✔   (sent only, slightly muted)
+   - .delivered   → ✔✔  (grey, message reached the receiver's device)
+   - .read        → ✔✔  (blue, message has been seen) */
+.tick {
+  font-weight: bold;
+  color: rgba(255, 255, 255, 0.75);
+  letter-spacing: -2px;
+}
+.bubble.theirs .tick { color: rgba(0, 0, 0, 0.55); }
+.tick.pending { color: rgba(255, 255, 255, 0.55); font-style: italic; letter-spacing: 0; }
+.bubble.theirs .tick.pending { color: rgba(0, 0, 0, 0.4); }
+.tick.sent { opacity: 0.85; }
+.tick.delivered { color: rgba(255, 255, 255, 0.95); }
+.bubble.theirs .tick.delivered { color: rgba(0, 0, 0, 0.85); }
+.tick.read { color: #38bdf8; }
+
+.msg-menu-btn {
+  position: absolute;
+  top: 2px;
+  right: 4px;
+  background: transparent;
+  border: none;
+  color: inherit;
+  font-size: 14px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s;
+  padding: 0 6px;
+  line-height: 1;
+}
+
+.bubble:hover .msg-menu-btn { opacity: 0.7; }
+.msg-menu-btn:hover { opacity: 1 !important; }
+
+.msg-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  z-index: 10;
+  min-width: 120px;
+  overflow: hidden;
+}
+
+.msg-menu-item {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  color: #111827;
+  text-align: left;
+  font-size: 13px;
+  cursor: pointer;
+
+  &:hover { background: #f3f4f6; }
+  &.danger { color: #dc2626; }
+  &.danger:hover { background: #fee2e2; }
+}
+
+.bubble-edit {
+  width: 100%;
+  min-width: 200px;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 14px;
+  background: rgba(255,255,255,0.95);
+  color: #111827;
+  resize: vertical;
+}
+
+.edit-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+  justify-content: flex-end;
+}
+
+.edit-cancel,
+.edit-save {
+  padding: 4px 10px;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.edit-cancel { background: rgba(255,255,255,0.2); color: inherit; }
+.edit-save { background: #16a34a; color: #fff; }
+
+.reply-quote {
+  display: flex;
+  flex-direction: column;
+  border-left: 3px solid currentColor;
+  padding: 4px 8px;
+  margin-bottom: 6px;
+  border-radius: 4px;
+  background: rgba(0,0,0,0.06);
+  font-size: 12px;
+  opacity: 0.85;
+  max-width: 100%;
+}
+.bubble.mine .reply-quote { background: rgba(255,255,255,0.18); border-color: rgba(255,255,255,0.5); }
+
+.reply-quote { cursor: pointer; }
+.reply-quote:hover { filter: brightness(0.96); }
+.reply-quote-name { font-weight: 600; }
+.reply-quote-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.search-mark {
+  background: #fde68a;
+  color: #111827;
+  border-radius: 3px;
+  padding: 0 2px;
+}

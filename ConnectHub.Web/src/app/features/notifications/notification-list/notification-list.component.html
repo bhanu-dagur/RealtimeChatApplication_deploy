@@ -1,0 +1,70 @@
+<div class="notif-page">
+
+  <!-- Header -->
+  <div class="notif-header">
+    <div class="header-left">
+      <button class="back-btn" (click)="goBack()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="15 18 9 12 15 6" />
+        </svg>
+      </button>
+      <div>
+        <h1 class="page-title">Notifications</h1>
+        @if (unreadCount > 0) {
+        <p class="page-sub">{{ unreadCount }} unread</p>
+        } @else {
+        <p class="page-sub">All caught up!</p>
+        }
+      </div>
+    </div>
+    @if (unreadCount > 0) {
+    <button class="mark-all-btn" (click)="markAllRead()">
+      Mark all as read
+    </button>
+    }
+  </div>
+
+  <!-- Body -->
+  <div class="notif-body">
+
+    @if (isLoading()) {
+    <div class="loading-state">
+      <div class="dot-spin"></div>
+      Loading...
+    </div>
+    } @else if (notifications().length === 0) {
+    <div class="empty-state">
+      <div class="empty-icon">🔔</div>
+      <h3>No notifications yet</h3>
+      <p>When something happens, it will show up here.</p>
+    </div>
+    } @else {
+
+    <!-- Group: Today -->
+    @if (notifications().length > 0) {
+    <div class="group-label">Recent</div>
+    @for (notif of notifications(); track notif.notificationId) {
+    <div class="notif-card" [class.unread]="!notif.isRead" (click)="markRead(notif)">
+
+      <!-- Icon -->
+      <div class="notif-icon" [style.background]="getIconBg(notif.type)">
+        {{ getIcon(notif.type) }}
+      </div>
+
+      <!-- Content -->
+      <div class="notif-content">
+        <div class="notif-title">{{ notif.title }}</div>
+        <div class="notif-msg">{{ notif.message }}</div>
+        <div class="notif-time">{{ notif.sentAt | timeAgo }}</div>
+      </div>
+
+      <!-- Unread dot -->
+      @if (!notif.isRead) {
+      <div class="unread-dot"></div>
+      }
+    </div>
+    }
+    }
+    }
+  </div>
+</div>

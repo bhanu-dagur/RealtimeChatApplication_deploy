@@ -1,0 +1,7 @@
+// All styles are in global styles.scss
+// Component-specific overrides only:
+
+:host {
+  display: block;
+  height: 100vh;
+}
