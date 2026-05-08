@@ -83,7 +83,12 @@ if (-not $NoBuild) {
 # ── Spawn each service in its own window ────────────────────────────────────
 $running = @()
 foreach ($svc in $services) {
-    $proj = Join-Path $root "$($svc.Project)\$($svc.Project).csproj"
+    if ($svc.Name -eq 'Gateway') {
+        $proj = Join-Path $root "$($svc.Project)\$($svc.Project).csproj"
+    } else {
+        $proj = Join-Path $root "Services\$($svc.Project)\$($svc.Project).csproj"
+    }
+
     if (-not (Test-Path $proj)) {
         Write-Host "  SKIP $($svc.Name) — project not found at $proj" -ForegroundColor DarkYellow
         continue
@@ -95,33 +100,27 @@ foreach ($svc in $services) {
     # last log lines on a crash. Remove if you prefer windows to auto-close.
     $args = @(
         '-NoExit',
-        $deadline = (Get-Date).AddSeconds(45)
-        foreach ($svc in $running) {
-            $ready = $false
-            while ((Get-Date) -lt $deadline) {
-                $listening = Get-NetTCPConnection -LocalPort $svc.Port -State Listen -ErrorAction SilentlyContinue
-                if ($listening) { $ready = $true; break }
-                Start-Sleep -Milliseconds 500
-            }
-            $status = if ($ready) { 'READY' } else { 'TIMEOUT' }
-            $color = if ($ready) { 'Green' } else { 'Red' }
-            Write-Host ("  [{0}] {1,-18} :: http://localhost:{2}" -f $status, $svc.Name, $svc.Port) -ForegroundColor $color
-        }
+        '-Command',
+        "& { `$Host.UI.RawUI.WindowTitle = '$title'; Set-Location '$root'; dotnet run --project '$proj' --no-build }"
+    )
+    Start-Process pwsh -ArgumentList $args
+    $running += $svc
+}
 
-        Write-Host "`nStack is up. Gateway: http://localhost:5000" -ForegroundColor Cyan
-        Write-Host "Stop with: .\start-all.ps1 -Stop" -ForegroundColor DarkGray
-        foreach ($svc in $running) {
-            while ((Get-Date) -lt $deadline) {
-                $listening = Get-NetTCPConnection -LocalPort $svc.Port -State Listen -ErrorAction SilentlyContinue
-                if ($listening) { break }
-                Start-Sleep -Milliseconds 500
-            }
-            $ok = [bool](Get-NetTCPConnection -LocalPort $svc.Port -State Listen -ErrorAction SilentlyContinue)
-            $status = if ($ok) { 'READY ' } else { 'TIMED OUT' }
-            $color = if ($ok) { 'Green' } else { 'Red' }
-            Write-Host ("  [{0}] {1,-18} :: http://localhost:{2}" -f $status, $svc.Name, $svc.Port) -ForegroundColor $color
-        }
+Write-Host "Waiting for ports to open..." -ForegroundColor Cyan
+$deadline = (Get-Date).AddSeconds(45)
 
-        Write-Host ""
-        Write-Host "Stack is up. Frontend Gateway: http://localhost:5000" -ForegroundColor Cyan
-        Write-Host "Stop everything later with: .\start-all.ps1 -Stop" -ForegroundColor DarkGray
+foreach ($svc in $running) {
+    while ((Get-Date) -lt $deadline) {
+        $listening = Get-NetTCPConnection -LocalPort $svc.Port -State Listen -ErrorAction SilentlyContinue
+        if ($listening) { break }
+        Start-Sleep -Milliseconds 500
+    }
+    $ok = [bool](Get-NetTCPConnection -LocalPort $svc.Port -State Listen -ErrorAction SilentlyContinue)
+    $status = if ($ok) { 'READY ' } else { 'TIMED OUT' }
+    $color = if ($ok) { 'Green' } else { 'Red' }
+    Write-Host ("  [{0}] {1,-18} :: http://localhost:{2}" -f $status, $svc.Name, $svc.Port) -ForegroundColor $color
+}
+
+Write-Host "`nStack is up. Frontend Gateway: http://localhost:5000" -ForegroundColor Cyan
+Write-Host "Stop everything later with: .\start-all.ps1 -Stop" -ForegroundColor DarkGray

@@ -61,11 +61,8 @@ services:
   # ── Backend services ────────────────────────────────────────────
   auth-api:
     build:
-      context: ./ConnectHub/ConnectHub
-      dockerfile: Dockerfile.service
-      args:
-        PROJECT_DIR: ConnectHub.Auth.API
-        PROJECT_NAME: ConnectHub.Auth.API.csproj
+      context: ./ConnectHub/src
+      dockerfile: ./Services/ConnectHub.Auth.API/Dockerfile
     container_name: ch-auth
     depends_on:
       sqlserver:
@@ -78,11 +75,8 @@ services:
 
   message-api:
     build:
-      context: ./ConnectHub/ConnectHub
-      dockerfile: Dockerfile.service
-      args:
-        PROJECT_DIR: ConnectHub.Message.API
-        PROJECT_NAME: ConnectHub.Message.API.csproj
+      context: ./ConnectHub/src
+      dockerfile: ./Services/ConnectHub.Message.API/Dockerfile
     container_name: ch-message
     depends_on:
       sqlserver:
@@ -95,11 +89,8 @@ services:
 
   room-api:
     build:
-      context: ./ConnectHub/ConnectHub
-      dockerfile: Dockerfile.service
-      args:
-        PROJECT_DIR: ConnectHub.Room.API
-        PROJECT_NAME: ConnectHub.Room.API.csproj
+      context: ./ConnectHub/src
+      dockerfile: ./Services/ConnectHub.Room.API/Dockerfile
     container_name: ch-room
     depends_on:
       sqlserver:
@@ -112,11 +103,8 @@ services:
 
   hub-api:
     build:
-      context: ./ConnectHub/ConnectHub
-      dockerfile: Dockerfile.service
-      args:
-        PROJECT_DIR: ConnectHub.Hub.API
-        PROJECT_NAME: ConnectHub.Hub.API.csproj
+      context: ./ConnectHub/src
+      dockerfile: ./Services/ConnectHub.Hub.API/Dockerfile
     container_name: ch-hub
     depends_on:
       auth-api:
@@ -133,11 +121,8 @@ services:
 
   notification-api:
     build:
-      context: ./ConnectHub/ConnectHub
-      dockerfile: Dockerfile.service
-      args:
-        PROJECT_DIR: ConnectHub.Notification.API
-        PROJECT_NAME: ConnectHub.Notification.API.csproj
+      context: ./ConnectHub/src
+      dockerfile: ./Services/ConnectHub.Notification.API/Dockerfile
     container_name: ch-notification
     depends_on:
       sqlserver:
@@ -150,11 +135,8 @@ services:
 
   media-api:
     build:
-      context: ./ConnectHub/ConnectHub
-      dockerfile: Dockerfile.service
-      args:
-        PROJECT_DIR: ConnectHub.Media.API
-        PROJECT_NAME: ConnectHub.Media.API.csproj
+      context: ./ConnectHub/src
+      dockerfile: ./Services/ConnectHub.Media.API/Dockerfile
     container_name: ch-media
     depends_on:
       sqlserver:
@@ -171,11 +153,8 @@ services:
   # ── API gateway (YARP) ──────────────────────────────────────────
   gateway:
     build:
-      context: ./ConnectHub/ConnectHub
-      dockerfile: Dockerfile.service
-      args:
-        PROJECT_DIR: ConnectHub.Gateway
-        PROJECT_NAME: ConnectHub.Gateway.csproj
+      context: ./ConnectHub/src
+      dockerfile: ./ConnectHub.Gateway/Dockerfile
     container_name: ch-gateway
     depends_on:
       - auth-api

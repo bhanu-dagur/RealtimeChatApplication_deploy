@@ -21,7 +21,7 @@ services:
     region: singapore
     plan: free
     rootDir: ConnectHub/src
-    dockerfilePath: ./Dockerfile.auth
+    dockerfilePath: ./Services/ConnectHub.Auth.API/Dockerfile
     dockerContext: .
     autoDeploy: true
     envVars:
@@ -51,7 +51,7 @@ services:
     region: singapore
     plan: free
     rootDir: ConnectHub/src
-    dockerfilePath: ./Dockerfile.message
+    dockerfilePath: ./Services/ConnectHub.Message.API/Dockerfile
     dockerContext: .
     autoDeploy: true
     envVars:
@@ -79,7 +79,7 @@ services:
     region: singapore
     plan: free
     rootDir: ConnectHub/src
-    dockerfilePath: ./Dockerfile.room
+    dockerfilePath: ./Services/ConnectHub.Room.API/Dockerfile
     dockerContext: .
     autoDeploy: true
     envVars:
@@ -109,7 +109,7 @@ services:
     region: singapore
     plan: free
     rootDir: ConnectHub/src
-    dockerfilePath: ./Dockerfile.hub
+    dockerfilePath: ./Services/ConnectHub.Hub.API/Dockerfile
     dockerContext: .
     autoDeploy: true
     envVars:
@@ -139,7 +139,7 @@ services:
     region: singapore
     plan: free
     rootDir: ConnectHub/src
-    dockerfilePath: ./Dockerfile.notification
+    dockerfilePath: ./Services/ConnectHub.Notification.API/Dockerfile
     dockerContext: .
     autoDeploy: true
     envVars:
@@ -179,7 +179,7 @@ services:
     region: singapore
     plan: free
     rootDir: ConnectHub/src
-    dockerfilePath: ./Dockerfile.media
+    dockerfilePath: ./Services/ConnectHub.Media.API/Dockerfile
     dockerContext: .
     autoDeploy: true
     envVars:
@@ -213,7 +213,7 @@ services:
     region: singapore
     plan: free
     rootDir: ConnectHub/src
-    dockerfilePath: ./Dockerfile.gateway
+    dockerfilePath: ./ConnectHub.Gateway/Dockerfile
     dockerContext: .
     autoDeploy: true
     envVars:
