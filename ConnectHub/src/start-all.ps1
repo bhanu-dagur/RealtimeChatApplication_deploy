@@ -77,6 +77,7 @@ if (-not $NoBuild) {
             return
         }
     }
+    catch { throw }
     finally { Pop-Location }
 }
 
@@ -103,7 +104,7 @@ foreach ($svc in $services) {
         '-Command',
         "& { `$Host.UI.RawUI.WindowTitle = '$title'; Set-Location '$root'; dotnet run --project '$proj' --no-build }"
     )
-    Start-Process pwsh -ArgumentList $args
+    Start-Process powershell -ArgumentList $args
     $running += $svc
 }
 

@@ -222,6 +222,22 @@ public class ChatRoomService : IChatRoomService
 
         member.Role = dto.NewRole;
         var updated = await _repo.UpdateMemberAsync(member);
+
+        if (dto.NewRole == MemberRole.ADMIN)
+        {
+            var room = await _repo.FindByIdAsync(dto.RoomId);
+            if (room != null)
+            {
+                await _notifications.SendAsync(
+                    recipientId: dto.UserId,
+                    senderId: actingUserId,
+                    type: NotificationType.ROLE_CHANGE,
+                    title: "Role Updated",
+                    message: $"You are now an admin in \"{room.RoomName}\".",
+                    relatedId: room.RoomId);
+            }
+        }
+
         return MapMemberToDto(updated);
     }
 
@@ -233,6 +249,21 @@ public class ChatRoomService : IChatRoomService
 
     public async Task<bool> IsUserInRoomAsync(int roomId, int userId) =>
         await _repo.IsUserInRoomAsync(roomId, userId);
+
+    public async Task<IList<ChatRoomResponseDto>> GetAllRoomsAdminAsync()
+    {
+        var rooms = await _repo.FindAllRoomsAdminAsync();
+        var result = new List<ChatRoomResponseDto>();
+        foreach (var room in rooms)
+        {
+            var count = await _repo.CountMembersAsync(room.RoomId);
+            result.Add(MapToDto(room, count));
+        }
+        return result;
+    }
+
+    public async Task<int> CountRoomsAsync() =>
+        await _repo.CountRoomsAsync();
 
     // ── Private helpers ───────────────────────────────────────────
 

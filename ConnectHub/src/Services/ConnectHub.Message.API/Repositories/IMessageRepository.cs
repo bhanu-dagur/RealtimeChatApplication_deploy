@@ -23,4 +23,9 @@ public interface IMessageRepository
     // Returns the list of newly-delivered messages so the caller can SignalR-broadcast
     // each one's MessageDelivered event back to the original sender's tabs.
     Task<IList<MessageEntity>> MarkAllDeliveredForRecipientAsync(int recipientId);
+    
+    // Admin operations
+    Task<IList<MessageEntity>> FindAllMessagesAdminAsync(int page, int pageSize);
+    Task<int> CountAllMessagesAsync();
+    Task<bool> HardDeleteAsync(int messageId);
 }

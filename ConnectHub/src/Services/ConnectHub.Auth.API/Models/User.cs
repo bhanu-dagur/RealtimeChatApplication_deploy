@@ -29,6 +29,7 @@ public class User
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     public bool IsActive { get; set; } = true;
+    public bool IsSystemAdmin { get; set; } = false;
 
     // OAuth provider info
     public string? GoogleId { get; set; }

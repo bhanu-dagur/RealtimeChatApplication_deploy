@@ -16,4 +16,10 @@ public interface IUserService
     Task SetOnlineStatusAsync(int userId, bool isOnline);
     Task<IList<UserProfileDto>> GetAllActiveUsersAsync();
     Task<bool> DeactivateAccountAsync(int userId);
+    
+    // Admin ops
+    Task<IList<UserProfileDto>> GetAllUsersAdminAsync();
+    Task<bool> SuspendUserAsync(int userId);
+    Task<bool> DeleteUserAsync(int userId);
+    Task<int> CountUsersAsync();
 }

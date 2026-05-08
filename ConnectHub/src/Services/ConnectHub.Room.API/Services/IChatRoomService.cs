@@ -20,4 +20,8 @@ public interface IChatRoomService
 
     // Throws UnauthorizedAccessException if actingUserId is not ADMIN of the room.
     Task EnsureAdminAsync(int roomId, int actingUserId);
+
+    // Admin operations
+    Task<IList<ChatRoomResponseDto>> GetAllRoomsAdminAsync();
+    Task<int> CountRoomsAsync();
 }

@@ -54,6 +54,12 @@ public class ChatRoomRepository : IChatRoomRepository
         return true;
     }
 
+    public async Task<IList<ChatRoom>> FindAllRoomsAdminAsync() =>
+        await _context.ChatRooms.IgnoreQueryFilters().ToListAsync();
+
+    public async Task<int> CountRoomsAsync() =>
+        await _context.ChatRooms.IgnoreQueryFilters().CountAsync();
+
     // ── Member operations ─────────────────────────────────────────
 
     public async Task<RoomMember?> FindMemberAsync(int roomId, int userId) =>

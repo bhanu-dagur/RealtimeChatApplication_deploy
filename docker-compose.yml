@@ -84,6 +84,7 @@ services:
     environment:
       <<: [*aspnet-defaults, *jwt-config]
       ConnectionStrings__DefaultConnection: Server=sqlserver,1433;Database=ConnectHubMessageDB;User Id=sa;Password=${MSSQL_SA_PASSWORD:-Your_Strong_Pass1!};TrustServerCertificate=True;Encrypt=False
+      Services__NotificationApi__Url: http://connecthub-notification:5005
     expose:
       - "8080"
 

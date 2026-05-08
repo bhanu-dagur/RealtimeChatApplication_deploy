@@ -28,6 +28,15 @@ builder.Services.AddDbContext<MessageDbContext>(options =>
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 builder.Services.AddScoped<IMessageService, MessageService>();
 
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddHttpClient<INotificationClient, NotificationClient>(client =>
+{
+    var url = builder.Configuration["Services:NotificationApi:Url"]
+        ?? "http://localhost:5005";
+    client.BaseAddress = new Uri(url);
+    client.Timeout = TimeSpan.FromSeconds(5);
+});
+
 // ── JWT Authentication ────────────────────────────────────────────
 var jwtSecret = builder.Configuration["Jwt:Key"]!;
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

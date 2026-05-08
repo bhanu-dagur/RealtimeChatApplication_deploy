@@ -180,6 +180,31 @@ public class UserService : IUserService
         return true;
     }
 
+    // ── Admin ────────────────────────────────────────────────────
+    public async Task<IList<UserProfileDto>> GetAllUsersAdminAsync()
+    {
+        var users = await _repo.FindAllIncludingInactiveAsync();
+        return users.Select(MapToProfile).ToList();
+    }
+
+    public async Task<bool> SuspendUserAsync(int userId)
+    {
+        var user = await _repo.FindAnyByIdAsync(userId);
+        if (user is null) return false;
+        
+        user.IsActive = false;
+        await _repo.UpdateAsync(user);
+        return true;
+    }
+
+    public async Task<bool> DeleteUserAsync(int userId)
+    {
+        return await _repo.HardDeleteAsync(userId);
+    }
+
+    public async Task<int> CountUsersAsync() =>
+        await _repo.CountUsersAsync();
+
     // ── Private helpers ──────────────────────────────────────────
 
     // Derives a unique username from the email's local-part (e.g. "alice.smith"
@@ -223,13 +248,18 @@ public class UserService : IUserService
         var key = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
 
-        var claims = new[]
+        var claims = new List<Claim>
         {
             new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
             new Claim(JwtRegisteredClaimNames.Email, user.Email),
             new Claim("username", user.UserName),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
+
+        if (user.IsSystemAdmin)
+        {
+            claims.Add(new Claim(ClaimTypes.Role, "Admin"));
+        }
 
         var token = new JwtSecurityToken(
             issuer: _config["Jwt:Issuer"],

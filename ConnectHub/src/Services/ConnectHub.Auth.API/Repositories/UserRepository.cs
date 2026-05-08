@@ -63,4 +63,23 @@ public class UserRepository : IUserRepository
         user.LastSeen = DateTime.UtcNow;
         await _context.SaveChangesAsync();
     }
+
+    public async Task<IList<User>> FindAllIncludingInactiveAsync() =>
+        await _context.Users.ToListAsync();
+
+    public async Task<User?> FindAnyByIdAsync(int userId) =>
+        await _context.Users.FirstOrDefaultAsync(u => u.UserId == userId);
+
+    public async Task<bool> HardDeleteAsync(int userId)
+    {
+        var user = await _context.Users.FindAsync(userId);
+        if (user is null) return false;
+        
+        _context.Users.Remove(user);
+        await _context.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<int> CountUsersAsync() =>
+        await _context.Users.CountAsync();
 }

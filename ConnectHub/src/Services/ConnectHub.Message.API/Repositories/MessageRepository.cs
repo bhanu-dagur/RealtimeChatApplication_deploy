@@ -147,4 +147,24 @@ public class MessageRepository : IMessageRepository
         await _context.SaveChangesAsync();
         return pending;
     }
+
+    public async Task<IList<MessageEntity>> FindAllMessagesAdminAsync(int page, int pageSize) =>
+        await _context.Messages
+            .OrderByDescending(m => m.SentAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+    public async Task<int> CountAllMessagesAsync() =>
+        await _context.Messages.CountAsync();
+
+    public async Task<bool> HardDeleteAsync(int messageId)
+    {
+        var msg = await _context.Messages.FindAsync(messageId);
+        if (msg == null) return false;
+        
+        _context.Messages.Remove(msg);
+        await _context.SaveChangesAsync();
+        return true;
+    }
 }

@@ -10,6 +10,8 @@ public interface IChatRoomRepository
     Task<ChatRoom> CreateAsync(ChatRoom room);
     Task<ChatRoom> UpdateAsync(ChatRoom room);
     Task<bool> DeleteAsync(int roomId);
+    Task<IList<ChatRoom>> FindAllRoomsAdminAsync();
+    Task<int> CountRoomsAsync();
 
     // Member operations
     Task<RoomMember?> FindMemberAsync(int roomId, int userId);

@@ -71,6 +71,8 @@ services:
         value: ConnectHubUsers
       - key: Jwt__DurationInMinutes
         value: "60"
+      - key: Services__NotificationApi__Url
+        value: https://connecthub-notification-u9g6.onrender.com
 
   # ── Room.API ─────────────────────────────────────────────────
   - type: web

@@ -15,4 +15,8 @@ public interface IUserRepository
     Task<User> CreateAsync(User user);
     Task<User> UpdateAsync(User user);
     Task UpdateOnlineStatusAsync(int userId, bool isOnline);
+    Task<IList<User>> FindAllIncludingInactiveAsync();
+    Task<User?> FindAnyByIdAsync(int userId);
+    Task<bool> HardDeleteAsync(int userId);
+    Task<int> CountUsersAsync();
 }

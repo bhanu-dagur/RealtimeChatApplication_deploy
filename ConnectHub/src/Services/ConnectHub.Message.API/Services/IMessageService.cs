@@ -28,4 +28,9 @@ public interface IMessageService
     Task<IList<MessageResponseDto>> SearchMessagesAsync(int userId, string keyword);
     Task<IList<MessageResponseDto>> SearchRoomMessagesAsync(int roomId, string keyword);
     Task<IList<ConversationSummaryDto>> GetRecentConversationsAsync(int userId);
+
+    // Admin operations
+    Task<PagedResult<MessageResponseDto>> GetAllMessagesAdminAsync(int page, int pageSize);
+    Task<bool> DeleteMessageAdminAsync(int messageId);
+    Task<int> CountMessagesAsync();
 }
