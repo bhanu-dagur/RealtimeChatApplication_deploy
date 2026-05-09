@@ -58,8 +58,8 @@ builder.Services.AddSwaggerGen(options =>
 // would think the wrong migrations had already been applied.
 builder.Services.AddDbContext<AuthDbContext>(options =>
 {
-    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-        ?? builder.Configuration["DATABASE_URL"];
+    var connectionString = (builder.Configuration.GetConnectionString("DefaultConnection")
+        ?? builder.Configuration["DATABASE_URL"] ?? "").Trim();
     options.UseNpgsql(connectionString,
         npgsql => npgsql.MigrationsHistoryTable("__EFMigrationsHistory_Auth"));
 });

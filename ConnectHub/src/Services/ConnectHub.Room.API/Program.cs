@@ -21,8 +21,8 @@ builder.Host.UseSerilog();
 // per-service migrations-history table.
 builder.Services.AddDbContext<RoomDbContext>(options =>
 {
-    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-        ?? builder.Configuration["DATABASE_URL"];
+    var connectionString = (builder.Configuration.GetConnectionString("DefaultConnection")
+        ?? builder.Configuration["DATABASE_URL"] ?? "").Trim();
     options.UseNpgsql(connectionString,
         npgsql => npgsql.MigrationsHistoryTable("__EFMigrationsHistory_Room"));
 });

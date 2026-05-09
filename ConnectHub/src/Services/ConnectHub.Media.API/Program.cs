@@ -22,16 +22,16 @@ builder.Host.UseSerilog();
 builder.Services.Configure<CloudinaryOptions>(options =>
 {
     var section = builder.Configuration.GetSection("Cloudinary");
-    options.CloudName = section["CloudName"] ?? builder.Configuration["CLOUDINARY_CLOUD_NAME"] ?? "";
-    options.ApiKey = section["ApiKey"] ?? builder.Configuration["CLOUDINARY_API_KEY"] ?? "";
-    options.ApiSecret = section["ApiSecret"] ?? builder.Configuration["CLOUDINARY_API_SECRET"] ?? "";
+    options.CloudName = (section["CloudName"] ?? builder.Configuration["CLOUDINARY_CLOUD_NAME"] ?? "").Trim();
+    options.ApiKey = (section["ApiKey"] ?? builder.Configuration["CLOUDINARY_API_KEY"] ?? "").Trim();
+    options.ApiSecret = (section["ApiSecret"] ?? builder.Configuration["CLOUDINARY_API_SECRET"] ?? "").Trim();
 });
 
 // ── Database ──────────────────────────────────────────────────────
 builder.Services.AddDbContext<MediaDbContext>(options =>
 {
-    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-        ?? builder.Configuration["DATABASE_URL"];
+    var connectionString = (builder.Configuration.GetConnectionString("DefaultConnection")
+        ?? builder.Configuration["DATABASE_URL"] ?? "").Trim();
     options.UseNpgsql(connectionString,
         npg => npg.MigrationsHistoryTable("__EFMigrationsHistory_Media"));
 });
