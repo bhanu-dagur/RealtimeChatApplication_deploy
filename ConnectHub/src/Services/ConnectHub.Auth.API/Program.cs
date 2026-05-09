@@ -165,7 +165,7 @@ using (var scope = app.Services.CreateScope())
         db.Database.Migrate();
 
         // ── Seed Admin User ──
-        var adminEmail = "rohit@gmail.com";
+        var adminEmail = "bhanudagur1702@gmail.com";
         var adminUser = db.Users.FirstOrDefault(u => u.Email == adminEmail);
         if (adminUser != null && !adminUser.IsSystemAdmin)
         {
