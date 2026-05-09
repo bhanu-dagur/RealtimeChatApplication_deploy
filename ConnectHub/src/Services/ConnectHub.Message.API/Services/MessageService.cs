@@ -9,11 +9,13 @@ public class MessageService : IMessageService
 {
     private readonly IMessageRepository _repo;
     private readonly INotificationClient _notifications;
+    private readonly IAuthClient _auth;
 
-    public MessageService(IMessageRepository repo, INotificationClient notifications)
+    public MessageService(IMessageRepository repo, INotificationClient notifications, IAuthClient auth)
     {
         _repo = repo;
         _notifications = notifications;
+        _auth = auth;
     }
 
     public async Task<MessageResponseDto> SendMessageAsync(SendMessageDto dto)
@@ -52,21 +54,19 @@ public class MessageService : IMessageService
         // Check for mentions if it's a room message
         if (dto.RoomId.HasValue && !string.IsNullOrWhiteSpace(dto.Content))
         {
-            var mentionMatch = System.Text.RegularExpressions.Regex.Match(dto.Content, @"@(\w+)");
-            if (mentionMatch.Success)
+            // Support @username (e.g. @rohit)
+            var matches = System.Text.RegularExpressions.Regex.Matches(dto.Content, @"@(\w+)");
+            foreach (System.Text.RegularExpressions.Match match in matches)
             {
-                // Note: Realistically we need the recipient's user ID from the username,
-                // but since we only have user IDs, if the mention format is @{UserId}, we can parse it.
-                // Assuming mention might be @username, this requires querying the Auth API or Room API.
-                // For simplicity, if we assume the mention is `@UserId` or we just notify everyone (broadcast).
-                // But the requirement says "mention (@username) in a room".
-                // We'll leave the exact regex match to user, but let's notify if we can parse an ID for now,
-                // or just leave a comment. To make it work reliably without changing the DB schema,
-                // we'll try to extract the ID if it's numeric, or we skip if we can't map it.
-                if (int.TryParse(mentionMatch.Groups[1].Value, out int mentionedUserId))
+                var userName = match.Groups[1].Value;
+                
+                // Lookup UserId by UserName via Auth API
+                var mentionedUserId = await _auth.GetUserIdByUserNameAsync(userName);
+                
+                if (mentionedUserId.HasValue && mentionedUserId.Value != dto.SenderId)
                 {
                     await _notifications.SendAsync(
-                        recipientId: mentionedUserId,
+                        recipientId: mentionedUserId.Value,
                         senderId: dto.SenderId,
                         type: ConnectHub.Shared.Enums.NotificationType.MENTION,
                         title: "You were mentioned",

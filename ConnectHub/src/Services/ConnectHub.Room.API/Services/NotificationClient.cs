@@ -45,6 +45,17 @@ public class NotificationClient : INotificationClient
 
         // Forward the caller's JWT so Notification.API's [Authorize] accepts it.
         var auth = _httpContext.HttpContext?.Request.Headers["Authorization"].ToString();
+        
+        // If not in headers (e.g. SignalR hub call), check query string
+        if (string.IsNullOrWhiteSpace(auth))
+        {
+            auth = _httpContext.HttpContext?.Request.Query["access_token"];
+            if (!string.IsNullOrWhiteSpace(auth) && !auth.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+            {
+                auth = "Bearer " + auth;
+            }
+        }
+
         if (!string.IsNullOrWhiteSpace(auth) && auth.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
         {
             req.Headers.Authorization = AuthenticationHeaderValue.Parse(auth);

@@ -84,7 +84,8 @@ services:
     environment:
       <<: [*aspnet-defaults, *jwt-config]
       ConnectionStrings__DefaultConnection: Server=sqlserver,1433;Database=ConnectHubMessageDB;User Id=sa;Password=${MSSQL_SA_PASSWORD:-Your_Strong_Pass1!};TrustServerCertificate=True;Encrypt=False
-      Services__NotificationApi__Url: http://connecthub-notification:5005
+      Services__NotificationApi__Url: http://ch-notification:8080
+      Services__AuthApi__Url: http://ch-auth:8080
     expose:
       - "8080"
 
@@ -99,6 +100,8 @@ services:
     environment:
       <<: [*aspnet-defaults, *jwt-config]
       ConnectionStrings__DefaultConnection: Server=sqlserver,1433;Database=ConnectHubRoomDB;User Id=sa;Password=${MSSQL_SA_PASSWORD:-Your_Strong_Pass1!};TrustServerCertificate=True;Encrypt=False
+      Services__NotificationApi__Url: http://ch-notification:8080
+      Services__AuthApi__Url: http://ch-auth:8080
     expose:
       - "8080"
 
@@ -114,7 +117,7 @@ services:
         condition: service_healthy
     environment:
       <<: [*aspnet-defaults, *jwt-config]
-      Services__AuthApi__Url: http://auth-api:8080
+      Services__AuthApi__Url: http://ch-auth:8080
       # Future: wire StackExchange.Redis SignalR backplane via this URL.
       Redis__ConnectionString: redis:6379
     expose:

@@ -149,7 +149,23 @@ public class ChatRoomService : IChatRoomService
         {
             var room = await _repo.FindByIdAsync(dto.RoomId);
             if (room is not null)
+            {
+                // 1. Notify the newcomer
                 await NotifyAddedToRoomAsync(dto.UserId, actingUserId, room);
+
+                // 2. Notify other members that someone joined
+                var allMembers = await _repo.FindMembersByRoomIdAsync(dto.RoomId);
+                foreach (var member in allMembers.Where(m => m.UserId != dto.UserId && m.IsActive))
+                {
+                    await _notifications.SendAsync(
+                        recipientId: member.UserId,
+                        senderId: dto.UserId,
+                        type: NotificationType.ROOM_INVITE, // Or a dedicated JOINED type if available
+                        title: "New member joined",
+                        message: $"A new member joined \"{room.RoomName}\".",
+                        relatedId: room.RoomId);
+                }
+            }
         }
 
         return result;

@@ -147,4 +147,15 @@ public class UserController : ControllerBase
         await _service.SetOnlineStatusAsync(id, dto.IsOnline);
         return Ok(ApiResponse<string>.Ok("Online status updated."));
     }
+
+    // GET api/users/by-username/{username}
+    [HttpGet("by-username/{username}")]
+    [Authorize]
+    public async Task<IActionResult> GetByUserName(string username)
+    {
+        var user = await _service.GetUserByUserNameAsync(username);
+        if (user is null)
+            return NotFound(ApiResponse<string>.Fail("User not found.", 404));
+        return Ok(ApiResponse<UserProfileDto>.Ok(user));
+    }
 }

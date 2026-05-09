@@ -78,7 +78,7 @@ builder.Services.AddSignalR(options =>
     options.ClientTimeoutInterval = TimeSpan.FromSeconds(30);
 });
 
-builder.Services.AddControllers();
+
 
 // ── Swagger ───────────────────────────────────────────────────────
 builder.Services.AddEndpointsApiExplorer();
@@ -124,6 +124,12 @@ builder.Services.AddCors(options =>
             .AllowCredentials()
             .SetIsOriginAllowed(_ => true));
 });
+
+// 🔥 SignalR camelCase property names ensure frontend compatibility
+builder.Services.AddControllers()
+    .AddJsonOptions(options => {
+        options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+    });
 
 var app = builder.Build();
 

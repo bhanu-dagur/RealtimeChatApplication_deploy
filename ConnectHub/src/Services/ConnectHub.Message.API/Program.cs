@@ -37,6 +37,14 @@ builder.Services.AddHttpClient<INotificationClient, NotificationClient>(client =
     client.Timeout = TimeSpan.FromSeconds(5);
 });
 
+builder.Services.AddHttpClient<IAuthClient, AuthClient>(client =>
+{
+    var url = builder.Configuration["Services:AuthApi:Url"]
+        ?? "http://localhost:5001";
+    client.BaseAddress = new Uri(url);
+    client.Timeout = TimeSpan.FromSeconds(5);
+});
+
 // ── JWT Authentication ────────────────────────────────────────────
 var jwtSecret = builder.Configuration["Jwt:Key"]!;
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
