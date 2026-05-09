@@ -22,9 +22,12 @@ builder.Host.UseSerilog();
 // Postgres on Neon — see Auth.API/Program.cs for the rationale on the
 // per-service migrations-history table.
 builder.Services.AddDbContext<NotificationDbContext>(options =>
-    options.UseNpgsql(
-        builder.Configuration.GetConnectionString("DefaultConnection"),
-        npgsql => npgsql.MigrationsHistoryTable("__EFMigrationsHistory_Notification")));
+{
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+        ?? builder.Configuration["DATABASE_URL"];
+    options.UseNpgsql(connectionString,
+        npgsql => npgsql.MigrationsHistoryTable("__EFMigrationsHistory_Notification"));
+});
 
 // ── DI ────────────────────────────────────────────────────────────
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
@@ -76,6 +79,10 @@ builder.Services.AddSignalR(options =>
     options.EnableDetailedErrors = true;
     options.KeepAliveInterval = TimeSpan.FromSeconds(15);
     options.ClientTimeoutInterval = TimeSpan.FromSeconds(30);
+})
+.AddJsonProtocol(options => {
+    options.PayloadSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+    options.PayloadSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
 });
 
 
@@ -129,6 +136,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddControllers()
     .AddJsonOptions(options => {
         options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+        options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
     });
 
 var app = builder.Build();

@@ -20,9 +20,12 @@ builder.Host.UseSerilog();
 // Postgres on Neon — see Auth.API/Program.cs for the rationale on the
 // per-service migrations-history table.
 builder.Services.AddDbContext<RoomDbContext>(options =>
-    options.UseNpgsql(
-        builder.Configuration.GetConnectionString("DefaultConnection"),
-        npgsql => npgsql.MigrationsHistoryTable("__EFMigrationsHistory_Room")));
+{
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+        ?? builder.Configuration["DATABASE_URL"];
+    options.UseNpgsql(connectionString,
+        npgsql => npgsql.MigrationsHistoryTable("__EFMigrationsHistory_Room"));
+});
 
 // ── DI ────────────────────────────────────────────────────────────
 builder.Services.AddScoped<IChatRoomRepository, ChatRoomRepository>();

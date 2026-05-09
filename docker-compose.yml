@@ -28,25 +28,6 @@ x-aspnet: &aspnet-defaults
 
 services:
   # ── Infrastructure ──────────────────────────────────────────────
-  sqlserver:
-    image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: ch-sqlserver
-    environment:
-      ACCEPT_EULA: "Y"
-      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD:-Your_Strong_Pass1!}
-      MSSQL_PID: Developer
-    ports:
-      - "1433:1433"
-    volumes:
-      - sqlserver-data:/var/opt/mssql
-    healthcheck:
-      # The full mssql-tools path differs between editions; this works on 2022-latest.
-      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -C -Q 'SELECT 1' || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 12
-      start_period: 30s
-
   redis:
     image: redis:7-alpine
     container_name: ch-redis
@@ -64,12 +45,9 @@ services:
       context: ./ConnectHub/src
       dockerfile: ./Services/ConnectHub.Auth.API/Dockerfile
     container_name: ch-auth
-    depends_on:
-      sqlserver:
-        condition: service_healthy
     environment:
       <<: [*aspnet-defaults, *jwt-config]
-      ConnectionStrings__DefaultConnection: Server=sqlserver,1433;Database=ConnectHubAuthDB;User Id=sa;Password=${MSSQL_SA_PASSWORD:-Your_Strong_Pass1!};TrustServerCertificate=True;Encrypt=False
+      ConnectionStrings__DefaultConnection: ${DATABASE_URL}
     expose:
       - "8080"
 
@@ -78,12 +56,9 @@ services:
       context: ./ConnectHub/src
       dockerfile: ./Services/ConnectHub.Message.API/Dockerfile
     container_name: ch-message
-    depends_on:
-      sqlserver:
-        condition: service_healthy
     environment:
       <<: [*aspnet-defaults, *jwt-config]
-      ConnectionStrings__DefaultConnection: Server=sqlserver,1433;Database=ConnectHubMessageDB;User Id=sa;Password=${MSSQL_SA_PASSWORD:-Your_Strong_Pass1!};TrustServerCertificate=True;Encrypt=False
+      ConnectionStrings__DefaultConnection: ${DATABASE_URL}
       Services__NotificationApi__Url: http://ch-notification:8080
       Services__AuthApi__Url: http://ch-auth:8080
     expose:
@@ -94,12 +69,9 @@ services:
       context: ./ConnectHub/src
       dockerfile: ./Services/ConnectHub.Room.API/Dockerfile
     container_name: ch-room
-    depends_on:
-      sqlserver:
-        condition: service_healthy
     environment:
       <<: [*aspnet-defaults, *jwt-config]
-      ConnectionStrings__DefaultConnection: Server=sqlserver,1433;Database=ConnectHubRoomDB;User Id=sa;Password=${MSSQL_SA_PASSWORD:-Your_Strong_Pass1!};TrustServerCertificate=True;Encrypt=False
+      ConnectionStrings__DefaultConnection: ${DATABASE_URL}
       Services__NotificationApi__Url: http://ch-notification:8080
       Services__AuthApi__Url: http://ch-auth:8080
     expose:
@@ -111,8 +83,6 @@ services:
       dockerfile: ./Services/ConnectHub.Hub.API/Dockerfile
     container_name: ch-hub
     depends_on:
-      auth-api:
-        condition: service_started
       redis:
         condition: service_healthy
     environment:
@@ -128,12 +98,9 @@ services:
       context: ./ConnectHub/src
       dockerfile: ./Services/ConnectHub.Notification.API/Dockerfile
     container_name: ch-notification
-    depends_on:
-      sqlserver:
-        condition: service_healthy
     environment:
       <<: [*aspnet-defaults, *jwt-config]
-      ConnectionStrings__DefaultConnection: Server=sqlserver,1433;Database=ConnectHubNotificationDB;User Id=sa;Password=${MSSQL_SA_PASSWORD:-Your_Strong_Pass1!};TrustServerCertificate=True;Encrypt=False
+      ConnectionStrings__DefaultConnection: ${DATABASE_URL}
     expose:
       - "8080"
 
@@ -142,12 +109,9 @@ services:
       context: ./ConnectHub/src
       dockerfile: ./Services/ConnectHub.Media.API/Dockerfile
     container_name: ch-media
-    depends_on:
-      sqlserver:
-        condition: service_healthy
     environment:
       <<: [*aspnet-defaults, *jwt-config]
-      ConnectionStrings__DefaultConnection: Server=sqlserver,1433;Database=ConnectHubMediaDB;User Id=sa;Password=${MSSQL_SA_PASSWORD:-Your_Strong_Pass1!};TrustServerCertificate=True;Encrypt=False
+      ConnectionStrings__DefaultConnection: ${DATABASE_URL}
       Cloudinary__CloudName: ${CLOUDINARY_CLOUD_NAME:-}
       Cloudinary__ApiKey: ${CLOUDINARY_API_KEY:-}
       Cloudinary__ApiSecret: ${CLOUDINARY_API_SECRET:-}
@@ -192,4 +156,5 @@ services:
       - "4200:80"
 
 volumes:
-  sqlserver-data:
+  redis-data: # Optional, for redis persistence if needed
+

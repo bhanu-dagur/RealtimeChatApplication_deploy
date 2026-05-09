@@ -20,9 +20,12 @@ builder.Host.UseSerilog();
 // Postgres on Neon — see Auth.API/Program.cs for the rationale on the
 // per-service migrations-history table.
 builder.Services.AddDbContext<MessageDbContext>(options =>
-    options.UseNpgsql(
-        builder.Configuration.GetConnectionString("DefaultConnection"),
-        npgsql => npgsql.MigrationsHistoryTable("__EFMigrationsHistory_Message")));
+{
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+        ?? builder.Configuration["DATABASE_URL"];
+    options.UseNpgsql(connectionString,
+        npgsql => npgsql.MigrationsHistoryTable("__EFMigrationsHistory_Message"));
+});
 
 // ── DI ────────────────────────────────────────────────────────────
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();

@@ -57,9 +57,12 @@ builder.Services.AddSwaggerGen(options =>
 // to write the default `__EFMigrationsHistory` table and the second start-up
 // would think the wrong migrations had already been applied.
 builder.Services.AddDbContext<AuthDbContext>(options =>
-    options.UseNpgsql(
-        builder.Configuration.GetConnectionString("DefaultConnection"),
-        npgsql => npgsql.MigrationsHistoryTable("__EFMigrationsHistory_Auth")));
+{
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+        ?? builder.Configuration["DATABASE_URL"];
+    options.UseNpgsql(connectionString,
+        npgsql => npgsql.MigrationsHistoryTable("__EFMigrationsHistory_Auth"));
+});
 
 
 // ── Dependency Injection ───────────────────────────────────────

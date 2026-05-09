@@ -24,9 +24,12 @@ builder.Services.Configure<CloudinaryOptions>(
 
 // ── Database ──────────────────────────────────────────────────────
 builder.Services.AddDbContext<MediaDbContext>(options =>
-    options.UseNpgsql(
-        builder.Configuration.GetConnectionString("DefaultConnection"),
-        npg => npg.MigrationsHistoryTable("__EFMigrationsHistory_Media")));
+{
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+        ?? builder.Configuration["DATABASE_URL"];
+    options.UseNpgsql(connectionString,
+        npg => npg.MigrationsHistoryTable("__EFMigrationsHistory_Media"));
+});
 
 // ── DI ────────────────────────────────────────────────────────────
 builder.Services.AddScoped<IMediaRepository, MediaRepository>();
