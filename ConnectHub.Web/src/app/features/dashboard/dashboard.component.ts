@@ -65,6 +65,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   onlineUserIds = signal<Set<number>>(new Set());
   unreadDirectTotal = computed(() => this.conversations.totalUnread());
   notifCount = signal(0);
+  isAdmin = computed(() => this.auth.isAdmin());
   activeTab = signal<'chats' | 'contacts' | 'groups'>('chats');
   searchQuery = signal('');
   isSearching = signal(false);

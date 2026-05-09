@@ -160,10 +160,20 @@ using (var scope = app.Services.CreateScope())
     try
     {
         db.Database.Migrate();
+
+        // ── Seed Admin User ──
+        var adminEmail = "rohit@gmail.com";
+        var adminUser = db.Users.FirstOrDefault(u => u.Email == adminEmail);
+        if (adminUser != null && !adminUser.IsSystemAdmin)
+        {
+            adminUser.IsSystemAdmin = true;
+            db.SaveChanges();
+            Console.WriteLine($"[Admin Seed] Promoted {adminEmail} to SystemAdmin.");
+        }
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"[Migration Skipped] {ex.Message}");
+        Console.WriteLine($"[Migration/Seed Skipped] {ex.Message}");
     }
 }
 

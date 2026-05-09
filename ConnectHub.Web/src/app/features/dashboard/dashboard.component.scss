@@ -60,6 +60,13 @@
     background: var(--teal-light);
     color: var(--teal);
   }
+
+  &.admin-btn {
+    &:hover, &.active {
+      background: #fffbeb;
+      color: #d97706;
+    }
+  }
 }
 
 .nav-label {

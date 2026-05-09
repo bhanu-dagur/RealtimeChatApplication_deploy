@@ -59,6 +59,7 @@ export abstract class BaseChatComponent implements OnDestroy, AfterViewChecked {
 
   replyTo = signal<Message | null>(null);
   showEmojiPicker = signal(false);
+  pendingMedia = signal<{ result: UploadResult; type: MessageType } | null>(null);
 
   // ── Hooks subclasses must implement ───────────────────────────
   protected abstract fetchMessagesPage(page: number): Observable<ApiResponse<PagedResult<Message>>> | null;
@@ -239,45 +240,28 @@ export abstract class BaseChatComponent implements OnDestroy, AfterViewChecked {
   // ── Send ──────────────────────────────────────────────────────
   sendMessage(): void {
     const content = this.newMessage().trim();
-    if (!content) return;
+    const media = this.pendingMedia();
+
+    if (!content && !media) return;
 
     this.newMessage.set('');
+    this.pendingMedia.set(null);
     const replying = this.replyTo();
-    const dto = this.buildTextSendDto(content, replying?.messageId);
-    if (!dto) { this.newMessage.set(content); return; }
+
+    let dto: SendMessageDto | null = null;
+    if (media) {
+      dto = this.buildFileSendDto(media.result, media.type);
+      if (dto) dto.content = content || media.result.fileName; // If text provided, use it as caption
+    } else {
+      dto = this.buildTextSendDto(content, replying?.messageId);
+    }
+
+    if (!dto) {
+      this.newMessage.set(content);
+      this.pendingMedia.set(media);
+      return;
+    }
     this.replyTo.set(null);
-
-    this.msgApi.sendMessage(dto)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: res => {
-          if (res.success && res.data) {
-            this.messages.update(list => {
-              if (list.some(m => m.messageId === res.data.messageId)) return list;
-              return [...list, res.data];
-            });
-            this.shouldScroll = true;
-            this.forceScroll = true; // I just sent — always pin to bottom.
-            this.afterSendSuccess(res.data);
-          } else {
-            this.newMessage.set(content);
-            this.toast.error('Send failed', res.message ?? 'Could not send message.');
-          }
-        },
-        error: () => {
-          this.newMessage.set(content);
-          this.toast.error('Send failed', 'Network error.');
-        }
-      });
-  }
-
-  onFileUploaded(result: UploadResult): void {
-    let messageType = MessageType.FILE;
-    if (result.contentType.startsWith('image/')) messageType = MessageType.IMAGE;
-    if (result.contentType.startsWith('audio/')) messageType = MessageType.AUDIO;
-
-    const dto = this.buildFileSendDto(result, messageType);
-    if (!dto) return;
 
     this.msgApi.sendMessage(dto)
       .pipe(takeUntil(this.destroy$))
@@ -291,9 +275,30 @@ export abstract class BaseChatComponent implements OnDestroy, AfterViewChecked {
             this.shouldScroll = true;
             this.forceScroll = true;
             this.afterSendSuccess(res.data);
+          } else {
+            this.newMessage.set(content);
+            this.pendingMedia.set(media);
+            this.toast.error('Send failed', res.message ?? 'Could not send message.');
           }
+        },
+        error: () => {
+          this.newMessage.set(content);
+          this.pendingMedia.set(media);
+          this.toast.error('Send failed', 'Network error.');
         }
       });
+  }
+
+  onFileUploaded(result: UploadResult): void {
+    let messageType = MessageType.FILE;
+    if (result.contentType.startsWith('image/')) messageType = MessageType.IMAGE;
+    if (result.contentType.startsWith('audio/')) messageType = MessageType.AUDIO;
+
+    this.pendingMedia.set({ result, type: messageType });
+  }
+
+  cancelMedia(): void {
+    this.pendingMedia.set(null);
   }
 
   // ── Edit / Delete ─────────────────────────────────────────────

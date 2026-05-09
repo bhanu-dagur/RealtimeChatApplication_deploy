@@ -107,6 +107,18 @@ export class AuthService {
     }
   }
 
+  isAdmin(): boolean {
+    const token = this.getToken();
+    if (!token) return false;
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const roleClaim = payload.role || payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+      return roleClaim === 'Admin';
+    } catch {
+      return false;
+    }
+  }
+
   private saveSession(data: AuthResponse): void {
     localStorage.setItem(this.TOKEN_KEY, data.token);
     localStorage.setItem(this.USER_KEY, JSON.stringify(data));

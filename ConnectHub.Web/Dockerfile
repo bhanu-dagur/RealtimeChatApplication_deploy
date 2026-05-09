@@ -12,8 +12,8 @@ RUN npm run build -- --configuration production
 # ── Serve via nginx ───────────────────────────────────────────────
 FROM nginx:alpine AS runtime
 COPY nginx.conf /etc/nginx/conf.d/default.conf
-# angular.json outputs to dist/connect-hub-web/browser by default in Angular 17+
-COPY --from=build /app/dist/ /usr/share/nginx/html/
+# Angular puts the SPA under /browser when using the application builder (Angular 17+).
+COPY --from=build /app/dist/ConnectHub.Web/browser/ /usr/share/nginx/html/
 EXPOSE 80
 
 # nginx serves index.html for any unmatched route (SPA fallback) — see nginx.conf.

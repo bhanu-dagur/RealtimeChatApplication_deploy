@@ -1,5 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/auth/auth.guard';
+import { adminGuard } from './core/auth/admin.guard';
+
 
 export const routes: Routes = [
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
@@ -66,6 +68,46 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/profile/profile.component')
         .then(m => m.ProfileComponent)
+  },
+
+  // ── Admin Panel ───────────────────────────────────────────
+  {
+    path: 'admin',
+    canActivate: [adminGuard],
+    loadComponent: () =>
+      import('./features/admin/admin-layout/admin-layout')
+        .then(m => m.AdminLayoutComponent),
+    children: [
+      {
+        path: '',
+        redirectTo: 'dashboard',
+        pathMatch: 'full'
+      },
+      {
+        path: 'dashboard',
+        loadComponent: () =>
+          import('./features/admin/admin-dashboard/admin-dashboard')
+            .then(m => m.AdminDashboardComponent)
+      },
+      {
+        path: 'users',
+        loadComponent: () =>
+          import('./features/admin/manage-users/manage-users')
+            .then(m => m.ManageUsersComponent)
+      },
+      {
+        path: 'rooms',
+        loadComponent: () =>
+          import('./features/admin/manage-rooms/manage-rooms')
+            .then(m => m.ManageRoomsComponent)
+      },
+      {
+        path: 'messages',
+        loadComponent: () =>
+          import('./features/admin/manage-messages/manage-messages')
+            .then(m => m.ManageMessagesComponent)
+      }
+    ]
   },
 
   { path: '**', redirectTo: '/login' }
