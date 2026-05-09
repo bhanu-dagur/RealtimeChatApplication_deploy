@@ -19,8 +19,13 @@ Log.Logger = new LoggerConfiguration()
 builder.Host.UseSerilog();
 
 // ── Cloudinary Options ────────────────────────────────────────────
-builder.Services.Configure<CloudinaryOptions>(
-    builder.Configuration.GetSection("Cloudinary"));
+builder.Services.Configure<CloudinaryOptions>(options =>
+{
+    var section = builder.Configuration.GetSection("Cloudinary");
+    options.CloudName = section["CloudName"] ?? builder.Configuration["CLOUDINARY_CLOUD_NAME"] ?? "";
+    options.ApiKey = section["ApiKey"] ?? builder.Configuration["CLOUDINARY_API_KEY"] ?? "";
+    options.ApiSecret = section["ApiSecret"] ?? builder.Configuration["CLOUDINARY_API_SECRET"] ?? "";
+});
 
 // ── Database ──────────────────────────────────────────────────────
 builder.Services.AddDbContext<MediaDbContext>(options =>
