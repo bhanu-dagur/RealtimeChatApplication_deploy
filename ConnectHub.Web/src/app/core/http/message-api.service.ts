@@ -8,7 +8,7 @@ import { Message, SendMessageDto } from '../../shared/models/message.model';
 @Injectable({ providedIn: 'root' })
 export class MessageApiService {
   private http = inject(HttpClient);
-  private base = `${environment.apiUrl}/api/messages`;
+  private readonly base = `${environment.messageApiUrl}/api/messages`;
 
   getDirectMessages(userId1: number, userId2: number, page = 1, pageSize = 20): Observable<ApiResponse<PagedResult<Message>>> {
     return this.http.get<ApiResponse<PagedResult<Message>>>(

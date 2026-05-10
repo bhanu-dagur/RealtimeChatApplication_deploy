@@ -32,7 +32,7 @@ export interface MediaFileResponse {
 @Injectable({ providedIn: 'root' })
 export class MediaApiService {
     private http = inject(HttpClient);
-    private base = `${environment.apiUrl}/api/media`;
+    private readonly base = `${environment.mediaApiUrl}/api/media`;
 
     // Upload with progress tracking
     uploadFile(

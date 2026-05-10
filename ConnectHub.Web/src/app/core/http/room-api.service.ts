@@ -8,7 +8,7 @@ import { ChatRoom, RoomMember, RoomType } from '../../shared/models/room.model';
 @Injectable({ providedIn: 'root' })
 export class RoomApiService {
   private http = inject(HttpClient);
-  private base = `${environment.apiUrl}/api/rooms`;
+  private readonly base = `${environment.roomApiUrl}/api/rooms`;
 
   getPublicRooms(): Observable<ApiResponse<ChatRoom[]>> {
     return this.http.get<ApiResponse<ChatRoom[]>>(`${this.base}/public`);

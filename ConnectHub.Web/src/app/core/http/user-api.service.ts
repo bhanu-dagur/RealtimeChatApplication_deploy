@@ -19,7 +19,7 @@ export interface ChangePasswordDto {
 @Injectable({ providedIn: 'root' })
 export class UserApiService {
   private http = inject(HttpClient);
-  private base = `${environment.apiUrl}/api/users`;
+  private readonly base = `${environment.authApiUrl}/api/users`;
 
   getById(userId: number): Observable<ApiResponse<UserProfileDto>> {
     return this.http.get<ApiResponse<UserProfileDto>>(`${this.base}/${userId}`);

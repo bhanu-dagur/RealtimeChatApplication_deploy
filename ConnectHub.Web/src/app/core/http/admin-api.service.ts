@@ -10,9 +10,9 @@ import { Message } from '../../shared/models/message.model';
 @Injectable({ providedIn: 'root' })
 export class AdminApiService {
   private http = inject(HttpClient);
-  private authBase = `${environment.apiUrl}/api/users/admin`;
-  private roomBase = `${environment.apiUrl}/api/rooms/admin`;
-  private msgBase = `${environment.apiUrl}/api/messages/admin`;
+  private readonly authBase = `${environment.authApiUrl}/api/users/admin`;
+  private readonly roomBase = `${environment.roomApiUrl}/api/rooms/admin`;
+  private readonly msgBase = `${environment.messageApiUrl}/api/messages/admin`;
 
   // ── Users ──────────────────────────────────────────────────────────
   getAllUsers(): Observable<ApiResponse<UserProfileDto[]>> {

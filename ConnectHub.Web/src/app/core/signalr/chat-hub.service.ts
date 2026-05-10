@@ -308,7 +308,7 @@ export class ChatHubService {
     if (msg.isDelivered) return;             // already acked
 
     this.http.put<ApiResponse<Message>>(
-      `${environment.apiUrl}/api/messages/${msg.messageId}/delivered?recipientId=${me}`, {}
+      `${environment.messageApiUrl}/api/messages/${msg.messageId}/delivered?recipientId=${me}`, {}
     ).subscribe({
       next: res => {
         if (!res?.success || !res.data) return;
@@ -337,7 +337,7 @@ export class ChatHubService {
     const me = this.auth.getCurrentUser()?.userId;
     if (!me) return;
     this.http.put<ApiResponse<{ messageId: number; senderId: number; deliveredAt: string }[]>>(
-      `${environment.apiUrl}/api/messages/mark-all-delivered?recipientId=${me}`, {}
+      `${environment.messageApiUrl}/api/messages/mark-all-delivered?recipientId=${me}`, {}
     ).subscribe({
       next: res => {
         if (!res?.success || !Array.isArray(res.data) || res.data.length === 0) return;
