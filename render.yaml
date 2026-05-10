@@ -72,7 +72,7 @@ services:
       - key: Jwt__DurationInMinutes
         value: "60"
       - key: Services__NotificationApi__Url
-        value: http://connecthub-notification:10000
+        value: https://connecthub-notification-u9g6.onrender.com
 
   # ── Room.API ─────────────────────────────────────────────────
   - type: web
@@ -102,7 +102,7 @@ services:
       - key: Jwt__DurationInMinutes
         value: "60"
       - key: Services__NotificationApi__Url
-        value: http://connecthub-notification:10000
+        value: https://connecthub-notification-u9g6.onrender.com
 
   # ── Hub.API (SignalR) ────────────────────────────────────────
   - type: web
@@ -130,7 +130,7 @@ services:
       - key: Jwt__DurationInMinutes
         value: "60"
       - key: Services__AuthApi__Url
-        value: http://connecthub-auth:10000
+        value: https://connecthub-auth-u9g6.onrender.com
       - key: Redis__ConnectionString
         sync: false
 
@@ -234,14 +234,14 @@ services:
       - key: Jwt__DurationInMinutes
         value: "60"
       - key: ReverseProxy__Clusters__auth-cluster__Destinations__auth-destination__Address
-        value: http://connecthub-auth:10000
+        value: https://connecthub-auth-u9g6.onrender.com
       - key: ReverseProxy__Clusters__message-cluster__Destinations__message-destination__Address
-        value: http://connecthub-message:10000
+        value: https://connecthub-message-u9g6.onrender.com
       - key: ReverseProxy__Clusters__room-cluster__Destinations__room-destination__Address
-        value: http://connecthub-room:10000
+        value: https://connecthub-room-u9g6.onrender.com
       - key: ReverseProxy__Clusters__hub-cluster__Destinations__hub-destination__Address
-        value: http://connecthub-hub:10000
+        value: https://connecthub-hub-u9g6.onrender.com
       - key: ReverseProxy__Clusters__notification-cluster__Destinations__notification-destination__Address
-        value: http://connecthub-notification:10000
+        value: https://connecthub-notification-u9g6.onrender.com
       - key: ReverseProxy__Clusters__media-cluster__Destinations__media-destination__Address
-        value: http://connecthub-media:10000
+        value: https://connecthub-media-u9g6.onrender.com
