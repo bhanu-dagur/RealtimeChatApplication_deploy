@@ -15,7 +15,15 @@ builder.Host.UseSerilog();
 
 // ── YARP Reverse Proxy ────────────────────────────────────────────
 builder.Services.AddReverseProxy()
-    .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
+    .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"))
+    .ConfigureHttpClient((context, handler) =>
+    {
+        if (handler is SocketsHttpHandler socketsHandler)
+        {
+            // Render par internal/public SSL handshake issues se bachne ke liye
+            socketsHandler.SslOptions.RemoteCertificateValidationCallback = (sender, cert, chain, errors) => true;
+        }
+    });
 
 // ── JWT Authentication ────────────────────────────────────────────
 var jwtSecret = builder.Configuration["Jwt:Key"]!;
