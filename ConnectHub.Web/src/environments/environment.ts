@@ -1,6 +1,7 @@
 export const environment = {
   production: false,
   apiUrl: 'http://localhost:5000',
+  authApiUrl: 'http://localhost:5001',
   hubUrl: 'http://localhost:5000',
   notificationHubUrl: 'http://localhost:5000',
   // Google OAuth 2.0 Client ID — register a "Web application" credential at

@@ -13,7 +13,7 @@ export class AuthService {
 
   private readonly TOKEN_KEY = 'ch_token';
   private readonly USER_KEY = 'ch_user';
-  private readonly BASE = `${environment.apiUrl}/api/users`;
+  private readonly BASE = `${environment.authApiUrl}/api/users`;
 
   login(dto: LoginDto): Observable<ApiResponse<AuthResponse>> {
     return this.http
