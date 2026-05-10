@@ -113,6 +113,7 @@ app.UseWebSockets(new WebSocketOptions
     KeepAliveInterval = TimeSpan.FromSeconds(30)
 });
 
+app.UseMiddleware<GatewayRetryMiddleware>();
 app.UseMiddleware<RequestLoggingMiddleware>();
 
 app.UseIpRateLimiting();
